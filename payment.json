@@ -1,0 +1,43 @@
+{
+  "_id": { "$oid": "67a0b9eb67bda0dd050bc610" },
+  "customerId": { "$oid": "6791eddb6339014460a7d38d" },
+  "products": [
+    {
+      "_id": "67873581ab597050170e0466",
+      "sellerId": "677cadc07699e372b61eb192",
+      "name": "home",
+      "slug": "home",
+      "category": "addids",
+      "brand": "addiad",
+      "price": { "$numberInt": "10000" },
+      "stock": { "$numberInt": "20" },
+      "discount": { "$numberInt": "7" },
+      "description": "good job 1",
+      "shopName": "EasyShop",
+      "images": [
+        "http://res.cloudinary.com/de7dle6h2/image/upload/v1736951226/products/ix5cwjenol2caeyp123i.jpg"
+      ],
+      "rating": { "$numberDouble": "3.3" },
+      "createdAt": "2025-01-15T04:11:45.186Z",
+      "updatedAt": "2025-02-02T09:02:17.425Z",
+      "__v": { "$numberInt": "0" },
+      "quantity": { "$numberInt": "1" }
+    }
+  ],
+  "price": { "$numberInt": "9320" },
+  "payment_status": "unpaid",
+  "shippingInfo": {
+    "name": "ທ້າວ ພົມປະສິດ ສີສະນົນ",
+    "address": " ແຂວງຫລວງນໍ້າທາ",
+    "phone": "96947226",
+    "branch": "ສາຂາໜອງບົວວຽງ ເມືອງຫລວງນໍ້າທາ ແຂວງຫລວງນໍ້າທາ",
+    "province": " ແຂວງຫລວງນໍ້າທາ",
+    "city": " ແຂວງຫລວງນໍ້າທາ",
+    "transport": "Express"
+  },
+  "delivery_status": "pending",
+  "date": "February 3, 2025 7:43 PM",
+  "createdAt": { "$date": { "$numberLong": "1738586603308" } },
+  "updatedAt": { "$date": { "$numberLong": "1738586603308" } },
+  "__v": { "$numberInt": "0" }
+}
