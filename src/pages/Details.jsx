@@ -197,7 +197,7 @@ const Details = () => {
     },
     {
       icon: FaGithub,
-      url: `https://github.co/share?url=${encodeURIComponent(shareUrl)}`,
+      url: `htts://github.co/share?url=${encodeURIComponent(shareUrl)}`,
     },
   ];
   return (
