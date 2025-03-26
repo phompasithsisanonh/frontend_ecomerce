@@ -17,7 +17,8 @@ import {
   Stack,
   Text,
   useToast,
-  VStack
+  VStack,
+  Badge,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,11 +31,19 @@ const Shipping = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const toast = useToast();
-  
+
   const { userInfo } = useSelector((state) => state.auth);
   const { errorMessage, successMessage } = useSelector((state) => state.order);
-  const { state: { card_products, price, shipping_fee, buy_product_item, items } } = useLocation();
-
+  const {
+    state: {
+      couponCode,
+      card_products,
+      price,
+      price_,
+      buy_product_item,
+      items,
+    },
+  } = useLocation();
   const [formData, setFormData] = useState({
     name: userInfo?.name || "",
     address: userInfo?.address || "",
@@ -42,7 +51,7 @@ const Shipping = () => {
     branch: userInfo?.branch || "",
     province: userInfo?.province || "",
     city: userInfo?.city || "",
-    transport: userInfo?.transport || ""
+    transport: userInfo?.transport || "",
   });
 
   const [touched, setTouched] = useState({});
@@ -50,39 +59,39 @@ const Shipping = () => {
 
   const validateField = (name, value) => {
     if (!value) return `${name} is required`;
-    if (name === 'phone' && !/^\d{8,}$/.test(value)) {
-      return 'Please enter a valid phone number';
+    if (name === "phone" && !/^\d{8,}$/.test(value)) {
+      return "Please enter a valid phone number";
     }
-    return '';
+    return "";
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
     if (touched[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: validateField(name, value)
+        [name]: validateField(name, value),
       }));
     }
   };
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
-    setErrors(prev => ({
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    setErrors((prev) => ({
       ...prev,
-      [name]: validateField(name, value)
+      [name]: validateField(name, value),
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     // Validate all fields
     const newErrors = {};
-    Object.keys(formData).forEach(key => {
+    Object.keys(formData).forEach((key) => {
       const error = validateField(key, formData[key]);
       if (error) newErrors[key] = error;
     });
@@ -90,19 +99,22 @@ const Shipping = () => {
     if (Object.keys(newErrors).length === 0) {
       dispatch(
         place_order({
-          price,
+          price: Number.isNaN(price_) || price_ == null ? price : price_,
           products: card_products,
-          shipping_fee,
           items: buy_product_item || items,
           shippingInfo: formData,
           userId: userInfo._id,
+          couponCode: couponCode,
           navigate,
         })
       );
     } else {
       setErrors(newErrors);
       setTouched(
-        Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {})
+        Object.keys(formData).reduce(
+          (acc, key) => ({ ...acc, [key]: true }),
+          {}
+        )
       );
       toast({
         title: "Form Validation Error",
@@ -142,7 +154,7 @@ const Shipping = () => {
 
   return (
     <Container maxW="container.xl" py={8}>
-      <Header/>
+      <Header />
       <Grid templateColumns={{ base: "1fr", lg: "3fr 2fr" }} gap={8}>
         {/* Shipping Form */}
         <GridItem>
@@ -166,7 +178,11 @@ const Shipping = () => {
                           value={formData.name}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          focusBorderColor={touched.name && !errors.name ? "green.400" : "blue.400"}
+                          focusBorderColor={
+                            touched.name && !errors.name
+                              ? "green.400"
+                              : "blue.400"
+                          }
                         />
                         <FormErrorMessage>{errors.name}</FormErrorMessage>
                       </FormControl>
@@ -179,7 +195,11 @@ const Shipping = () => {
                           value={formData.phone}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          focusBorderColor={touched.phone && !errors.phone ? "green.400" : "blue.400"}
+                          focusBorderColor={
+                            touched.phone && !errors.phone
+                              ? "green.400"
+                              : "blue.400"
+                          }
                         />
                         <FormErrorMessage>{errors.phone}</FormErrorMessage>
                       </FormControl>
@@ -194,15 +214,24 @@ const Shipping = () => {
                       Address Information
                     </Text>
                     <Stack spacing={4}>
-                      <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4}>
-                        <FormControl isInvalid={touched.province && errors.province}>
+                      <Grid
+                        templateColumns={{ base: "1fr", md: "1fr 1fr" }}
+                        gap={4}
+                      >
+                        <FormControl
+                          isInvalid={touched.province && errors.province}
+                        >
                           <FormLabel>Province *</FormLabel>
                           <Input
                             name="province"
                             value={formData.province}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            focusBorderColor={touched.province && !errors.province ? "green.400" : "blue.400"}
+                            focusBorderColor={
+                              touched.province && !errors.province
+                                ? "green.400"
+                                : "blue.400"
+                            }
                           />
                           <FormErrorMessage>{errors.province}</FormErrorMessage>
                         </FormControl>
@@ -214,20 +243,30 @@ const Shipping = () => {
                             value={formData.city}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            focusBorderColor={touched.city && !errors.city ? "green.400" : "blue.400"}
+                            focusBorderColor={
+                              touched.city && !errors.city
+                                ? "green.400"
+                                : "blue.400"
+                            }
                           />
                           <FormErrorMessage>{errors.city}</FormErrorMessage>
                         </FormControl>
                       </Grid>
 
-                      <FormControl isInvalid={touched.address && errors.address}>
+                      <FormControl
+                        isInvalid={touched.address && errors.address}
+                      >
                         <FormLabel>Detailed Address *</FormLabel>
                         <Input
                           name="address"
                           value={formData.address}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          focusBorderColor={touched.address && !errors.address ? "green.400" : "blue.400"}
+                          focusBorderColor={
+                            touched.address && !errors.address
+                              ? "green.400"
+                              : "blue.400"
+                          }
                         />
                         <FormErrorMessage>{errors.address}</FormErrorMessage>
                       </FormControl>
@@ -242,14 +281,20 @@ const Shipping = () => {
                       Shipping Method
                     </Text>
                     <Stack spacing={4}>
-                      <FormControl isInvalid={touched.transport && errors.transport}>
+                      <FormControl
+                        isInvalid={touched.transport && errors.transport}
+                      >
                         <FormLabel>Transport Company *</FormLabel>
                         <Select
                           name="transport"
                           value={formData.transport}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          focusBorderColor={touched.transport && !errors.transport ? "green.400" : "blue.400"}
+                          focusBorderColor={
+                            touched.transport && !errors.transport
+                              ? "green.400"
+                              : "blue.400"
+                          }
                         >
                           <option value="">Select Transport</option>
                           <option value="ອານຸສິດ">ອານຸສິດ</option>
@@ -265,7 +310,11 @@ const Shipping = () => {
                           value={formData.branch}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          focusBorderColor={touched.branch && !errors.branch ? "green.400" : "blue.400"}
+                          focusBorderColor={
+                            touched.branch && !errors.branch
+                              ? "green.400"
+                              : "blue.400"
+                          }
                         />
                         <FormErrorMessage>{errors.branch}</FormErrorMessage>
                       </FormControl>
@@ -296,20 +345,41 @@ const Shipping = () => {
             <CardBody>
               <Stack spacing={4}>
                 <Box>
-                  <Text>Items: {buy_product_item || items}</Text>
-                  <Text>Price: {price?.toLocaleString()} KIP</Text>
-                  <Text>Shipping Fee: {shipping_fee?.toLocaleString()} KIP</Text>
+                  <Text>ຈຳນວນ: {buy_product_item || items} ລາຍການ</Text>
+                  <Text>
+                    ລາຄາລວມ:{" "}
+                    {isNaN(price_)
+                      ? price?.toLocaleString()
+                      : price_?.toLocaleString()}{" "}
+                    ກີບ
+                  </Text>
+                  {/* <Text>Shipping Fee: {shipping_fee?.toLocaleString()} KIP</Text> */}
+                </Box>
+                <Divider />
+                <Box>
+                  <Badge colorScheme="red">
+                    ໝາຍເຫດ:
+                    ຄ່າຂົນສົ່ງລູກຄ້າຕ້ອງຈ່າຍເອງຈະບໍ່ມີການບວກເຂົ້າກັບສິນຄ້າ{" "}
+                  </Badge>
+                  <Badge colorScheme="red">
+                    ຫຼັງຈາກຊຳລະຄ່າສິນຄ້າແລ້ວຈະໄດ້ຮັບໃບບິນ ແລະ
+                    ໃບຂົນສົ່ງສິນຄ້າພາຍຫຼັງ
+                  </Badge>
                 </Box>
                 <Divider />
                 <Text fontSize="xl" fontWeight="bold" color="blue.600">
-                  Total: {((price || 0) + (shipping_fee || 0)).toLocaleString()} KIP
+                  Total:{" "}
+                  {isNaN(price_)
+                    ? price?.toLocaleString()
+                    : price_?.toLocaleString()}{" "}
+                  KIP
                 </Text>
               </Stack>
             </CardBody>
           </Card>
         </GridItem>
       </Grid>
-      <Footer/>
+      <Footer />
     </Container>
   );
 };

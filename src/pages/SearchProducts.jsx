@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   price_range_product,
   query_products,
@@ -29,14 +29,28 @@ import Header from "../components/Header";
 import { AiFillStar } from "react-icons/ai";
 import { CiStar } from "react-icons/ci";
 import Search from "../pages/Search";
-import { FaCartShopping, FaEye, FaRegHeart } from "react-icons/fa6";
+import { FaCartShopping, FaEye, FaHeart, FaRegHeart } from "react-icons/fa6";
+import {
+  add_to_card,
+  get_card_products,
+  get_wishlist,
+  messageClear,
+  wishlist,
+} from "../store/reducers/cardReducer";
+import toast from "react-hot-toast";
 
 const SearchProducts = () => {
   let [searchParams, setSearchParams] = useSearchParams();
   const category = searchParams.get("category");
   const searchValue = searchParams.get("value");
-
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [localWishlist, setLocalWishlist] = useState([]);
+
+  const { userInfo } = useSelector((state) => state.auth);
+  const { errorMessage, successMessage, wishlists } = useSelector(
+    (state) => state.card
+  );
   const {
     priceRange,
     latest_product,
@@ -52,14 +66,17 @@ const SearchProducts = () => {
       values: [priceRange.low, priceRange.high],
     });
   }, [priceRange]);
+  ///filter
   const [filter, setFilter] = useState(true);
-
+  ///price-range
   const [state, setState] = useState({
     values: [priceRange.low, priceRange.high],
   });
+  //rating
   const [rating, setRating] = useState("");
+  //pagination
   const [pageNumber, setPageNumber] = useState(1);
-
+  ///sort-price
   const [sortPrice, setSortPrice] = useState("");
   const handleClearFilter = () => {
     setSortPrice(""); // Clear sort option
@@ -71,6 +88,64 @@ const SearchProducts = () => {
     });
     setSearchParams({}); // Clear URL search params (optional)
   };
+
+  /////////////////////////////////////
+  const handleAddToCart = (product) => {
+    if (!userInfo) {
+      navigate("/login");
+      return;
+    }
+    if (product.stock === 1) {
+      toast.error(" ❌ ສິນຄ້າໝົດ ❌");
+    } else {
+      if (userInfo) {
+        dispatch(
+          add_to_card({
+            userId: userInfo._id,
+            productId: product._id,
+            quantity: 1,
+          })
+        ).then(() => {
+          dispatch(get_card_products(userInfo._id)); // ดึงข้อมูลใหม่หลังการเพิ่ม
+        });
+      }
+    }
+  };
+  const handleWishlist = (productId) => {
+    if (!userInfo) {
+      navigate("/login");
+      return;
+    }
+    dispatch(wishlist({ id: userInfo._id, productId })).then(() => {
+      dispatch(get_wishlist({ id: userInfo._id }));
+    });
+    setLocalWishlist((prev) =>
+      prev.includes(productId)
+        ? prev.filter((item) => item !== productId)
+        : [...prev, productId]
+    );
+  };
+  useEffect(() => {
+    if (userInfo) {
+      dispatch(get_wishlist({ id: userInfo._id }));
+      dispatch(get_card_products(userInfo._id));
+    }
+  }, [dispatch, userInfo]);
+  useEffect(() => {
+    setLocalWishlist(wishlists.map((item) => item.productId?._id));
+  }, [wishlists]);
+
+  ////////////
+  useEffect(() => {
+    if (successMessage) {
+      toast.success(successMessage);
+      dispatch(messageClear());
+    }
+    if (errorMessage) {
+      toast.error(errorMessage);
+      dispatch(messageClear());
+    }
+  }, [successMessage, errorMessage, dispatch]);
   useEffect(() => {
     dispatch(
       query_products({
@@ -91,7 +166,8 @@ const SearchProducts = () => {
     sortPrice,
     searchValue,
     pageNumber,
-  ]);
+    dispatch,
+  ]); // eslint-disable-line
   return (
     <Box>
       <Header />
@@ -298,29 +374,40 @@ const SearchProducts = () => {
                         {p.name}
                       </Text>
                       <Text fontSize="sm" color="gray.500">
-                        Category: {p.category}
+                        ໝວດສິນຄ້າ: {p.category}
                       </Text>
                       <Text fontSize="sm" color="blue.500" fontWeight="bold">
-                        {p.price.toLocaleString()} LAK
+                        ລາຄາ {p.price.toLocaleString()} LAK
                       </Text>
                       <Flex mt={2} justify="space-between">
                         <IconButton
                           aria-label="Add to Cart"
                           icon={<FaCartShopping />}
+                          onClick={() => handleAddToCart(p)}
                           variant="ghost"
                           colorScheme="blue"
                         />
                         <IconButton
                           aria-label="View"
                           icon={<FaEye />}
+                          onClick={() => navigate(`/details/products/${p._id}`)}
                           variant="ghost"
                           colorScheme="blue"
                         />
                         <IconButton
                           aria-label="Wishlist"
-                          icon={<FaRegHeart />}
+                          icon={
+                            localWishlist.includes(p._id) ? (
+                              <FaHeart />
+                            ) : (
+                              <FaRegHeart />
+                            )
+                          }
+                          onClick={() => handleWishlist(p._id)}
+                          colorScheme={
+                            localWishlist.includes(p._id) ? "red" : "teal"
+                          }
                           variant="ghost"
-                          colorScheme="blue"
                         />
                       </Flex>
                     </Box>

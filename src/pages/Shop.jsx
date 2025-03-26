@@ -28,9 +28,7 @@ import {
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import { FaCartShopping, FaEye, FaRegHeart, FaStar } from "react-icons/fa6";
-import { FaHeart, FaThList } from "react-icons/fa";
-import { BsFillGridFill } from "react-icons/bs";
-import Products from "../components/products/Products";
+import { FaHeart} from "react-icons/fa";
 import Footer from "../components/Footer";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -60,12 +58,10 @@ const Shop = () => {
     priceRange,
     totalProducts,
     parPage,
-    latest_product,
   } = useSelector((state) => state.home);
   useEffect(() => {
     dispatch(price_range_product());
   }, [dispatch]);
-  const [isHovered, setIsHovered] = useState(null);
   const [sliderValue, setSliderValue] = useState([0, 1000]); // Initial value range
   const [isDrawerOpen, setIsDrawerOpen] = useState(false); // Drawer state for filters
   useEffect(() => {

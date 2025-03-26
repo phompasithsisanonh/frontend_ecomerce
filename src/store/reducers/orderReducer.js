@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../api/api";
-import toast from "react-hot-toast";
 
 export const place_order = createAsyncThunk(
   "order/place_order",
@@ -11,25 +10,27 @@ export const place_order = createAsyncThunk(
     items,
     shippingInfo,
     userId,
+    couponCode,
     navigate,
   },{ rejectWithValue, fulfillWithValue }) => {
     try {
       const { data } = await api.post("/order-add", {
         price, //ລາຄາ
         products, //ສິນຄ້າ
-        shipping_fee, //ຄ່າຈ່າຍການຈັດສົ່ງ
         items, //ລາຍການສິນຄ້າ
         shippingInfo, //ຂໍ້ມູນການຈັດສົ່ງ
         userId, //ຜູ້ໃຊ້
         navigate,
+        couponCode
       });
 
       navigate("/payment", {
         state: {
-          price: price + shipping_fee,
+          price: price ,
           items,
           orderId: data.orderId,
           shippingInfo,
+          products,
         },
       });
       return fulfillWithValue(data);

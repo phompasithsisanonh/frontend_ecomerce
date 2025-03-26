@@ -31,7 +31,6 @@ const Reviews = ({ slugId, ratingid }) => {
     messageClear,
     errorMessage,
     reviews,
-    products,
   } = useSelector((state) => state.home);
   const { userInfo } = useSelector((state) => state.auth);
   const [state, setState] = useState({ name: "", rating: 0, review: "" });
@@ -75,7 +74,7 @@ const Reviews = ({ slugId, ratingid }) => {
   }, [dispatch, slugId]);
   useEffect(() => {
     dispatch(get_products());
-  }, []);
+  }, [dispatch]);
   useEffect(() => {
     if (successMessage) {
       toast.success(successMessage);

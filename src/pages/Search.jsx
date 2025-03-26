@@ -1,21 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Container,
   Flex,
-  IconButton,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  Text,
   Button,
   Image,
   Input,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const Search = () => {
   const { categorys } = useSelector((state) => state.home);
@@ -40,7 +38,11 @@ const Search = () => {
         <Menu>
           <MenuButton
             as={Button}
-            rightIcon={<Box as="span" paddingLeft="10px">▼</Box>}
+            rightIcon={
+              <Box as="span" paddingLeft="10px">
+                ▼
+              </Box>
+            }
             width={{ base: "100%", md: "auto" }}
           >
             {category === "" ? "Category" : category}
@@ -73,11 +75,7 @@ const Search = () => {
           width={{ base: "100%", md: "auto" }}
         />
 
-        <Button
-          onClick={search}
-          width={buttonWidth}
-          colorScheme="teal"
-        >
+        <Button onClick={search} width={buttonWidth} colorScheme="teal">
           Search
         </Button>
       </Flex>

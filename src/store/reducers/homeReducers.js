@@ -111,6 +111,19 @@ export const get_reviews = createAsyncThunk(
     }
   }
 );
+///profile_seller
+export const get_profile_seller= createAsyncThunk(
+  "product/get_profile_seller",
+  async ({ sellerId }, { fulfillWithValue, rejectWithValue }) => {
+    try {
+      const { data } = await api.get(`/get_profile_seller/${sellerId}`);
+      //  console.log(data)
+      return fulfillWithValue(data);
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 export const homeReducer = createSlice({
   name: "home",
   initialState: {
@@ -131,6 +144,9 @@ export const homeReducer = createSlice({
     moreProducts: [],
     reviews: [],
     reviews_count: 0,
+    ////products_seller
+    products_seller:[],
+    reviwes_seller1:[],
   },
   reducers: {
     messageClear: (state, _) => {
@@ -169,6 +185,10 @@ export const homeReducer = createSlice({
       .addCase(get_reviews.fulfilled, (state, { payload }) => {
         state.reviews = payload.reviews;
         state.reviews_count = payload.reviews_count;
+      })
+      .addCase(get_profile_seller.fulfilled, (state, { payload }) => {
+        state.products_seller = payload.products_seller;
+        state.reviwes_seller1 = payload.reviews;
       });
   },
 });

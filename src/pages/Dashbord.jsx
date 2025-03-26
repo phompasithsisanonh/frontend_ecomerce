@@ -2,7 +2,7 @@ import { Box, Flex, IconButton, Text } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { CgProfile } from "react-icons/cg";
 import { FaHistory, FaShippingFast } from "react-icons/fa";
-import { MdFavorite, MdPayments } from "react-icons/md";
+import { MdFavorite, MdFollowTheSigns, MdPayments } from "react-icons/md";
 import Header from "../components/Header";
 import Profile from "../components/profile/Profile";
 import WishList from "../components/profile/WishList";
@@ -11,6 +11,7 @@ import OrderHistory from "../components/profile/OrderHistory";
 import WaitPayment from "../components/profile/WaitPayment";
 import { useDispatch, useSelector } from "react-redux";
 import { get_payment } from "../store/reducers/paymentReducer";
+import ListFollowing from "../components/profile/ListFollowing";
 
 const Dashboard = () => {
   const { wishlist_count } = useSelector((state) => state.card);
@@ -43,6 +44,12 @@ const Dashboard = () => {
       label: "ລໍຖ້າຊຳລະເງິນ",
       data: payment_count,
     },
+    {
+      key: "following",
+      icon: <MdFollowTheSigns />,
+      label: "ກຳລັງຕິດຕາມ",
+      data: payment_count,
+    },
   ];
   const [active, setActive] = useState("profile");
 
@@ -58,13 +65,15 @@ const Dashboard = () => {
         return <StatusShipping />;
       case "payments":
         return <WaitPayment />;
+      case "following":
+        return <ListFollowing />;
       default:
         return <Profile />;
     }
   };
   useEffect(() => {
     dispatch(get_payment({ userId: userInfo._id }));
-  }, []);
+  }, [dispatch,userInfo._id]);
   return (
     <Box bg="gray.50" minH="100vh" p={4}>
       <Header />

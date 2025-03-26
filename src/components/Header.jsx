@@ -5,18 +5,14 @@ import {
   HStack,
   IconButton,
   Link,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   Text,
-  Button,
   useColorModeValue,
   Drawer,
   DrawerBody,
   DrawerOverlay,
   DrawerContent,
   DrawerCloseButton,
+  Divider,
 } from "@chakra-ui/react";
 import {
   FaFacebookF,
@@ -30,12 +26,14 @@ import {
   FaBars,
 } from "react-icons/fa6";
 import { MdEmail } from "react-icons/md";
-import { IoMdPhonePortrait, IoMdArrowDropdown } from "react-icons/io";
+import {
+  IoMdPhonePortrait,
+  IoMdLogOut,
+} from "react-icons/io";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { get_wishlist } from "../store/reducers/cardReducer";
-
 const Header = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { userInfo } = useSelector((state) => state.auth);
@@ -52,7 +50,7 @@ const Header = () => {
   }, [dispatch, userInfo]);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-  
+
   const menuItems = [
     { label: "ໜ້າຫຼັກ", path: "/" },
     { label: "ສິນຄ້າ", path: "/shop" },
@@ -60,7 +58,11 @@ const Header = () => {
     { label: "ກ່ຽວກັບພວກເຮົາ", path: "/about" },
     { label: "ຕິດຕໍ່ພວກເຮົາ", path: "/contact" },
   ];
-
+const handleLogout = () => { 
+  localStorage.removeItem("userInfo");
+  localStorage.removeItem("customerToken");
+  navigate("/login");
+}
   return (
     <Box w="full" bg="white" boxShadow="sm">
       <Box
@@ -68,7 +70,12 @@ const Header = () => {
         display={{ base: "none", md: "block" }}
       >
         <Container maxW="85%" mx="auto">
-          <Flex justify="space-between" align="center" h="50px" color="gray.500">
+          <Flex
+            justify="space-between"
+            align="center"
+            h="50px"
+            color="gray.500"
+          >
             <HStack spacing={8}>
               <Flex align="center" gap={2}>
                 <MdEmail />
@@ -95,7 +102,7 @@ const Header = () => {
                   <FaGithub />
                 </Link>
               </HStack>
-              <Menu>
+              {/* <Menu>
                 <MenuButton as={Button} rightIcon={<IoMdArrowDropdown />}>
                   Language
                 </MenuButton>
@@ -103,12 +110,22 @@ const Header = () => {
                   <MenuItem>Hindi</MenuItem>
                   <MenuItem>English</MenuItem>
                 </MenuList>
-              </Menu>
+              </Menu> */}
               {userInfo ? (
                 <RouterLink to="/dashboard">
                   <Flex align="center" gap={2}>
                     <FaUser />
                     <Text>{userInfo.name}</Text>
+                    <IconButton
+                      aria-label="Logout"
+                      onClick={()=>handleLogout()}
+                      icon={<IoMdLogOut />}
+                      colorScheme="red"
+                      boxShadow="md" // Soft shadow for better UI
+                      size="md" // Standard button size
+                      _hover={{ bg: "red.500", transform: "scale(1.05)" }} // Hover effect
+                      _active={{ bg: "red.600", transform: "scale(0.95)" }} // Press effect
+                    />
                   </Flex>
                 </RouterLink>
               ) : (
@@ -233,6 +250,19 @@ const Header = () => {
                     <FaUser />
                     <Text>{userInfo.name}</Text>
                   </Flex>
+                  <Divider />
+                  <Box paddingTop={"30px"}>
+                    <IconButton
+                      aria-label="Logout"
+                      onClick={()=>handleLogout()}
+                      icon={<IoMdLogOut />}
+                      colorScheme="red"
+                      boxShadow="md" // Soft shadow for better UI
+                      size="md" // Standard button size
+                      _hover={{ bg: "red.500", transform: "scale(1.05)" }} // Hover effect
+                      _active={{ bg: "red.600", transform: "scale(0.95)" }} // Press effect
+                    />
+                  </Box>
                 </RouterLink>
               ) : (
                 <RouterLink to="/login" onClick={toggleSidebar}>

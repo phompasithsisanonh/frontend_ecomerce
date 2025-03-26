@@ -11,9 +11,7 @@ import {
   Divider,
   Container,
   Center,
-  Badge,
   Input,
-  Stack,
   Card,
   CardBody,
 } from "@chakra-ui/react";
@@ -33,6 +31,51 @@ const Payment = () => {
   const {
     state: { orderId, price, items, shippingInfo, buy_product_item },
   } = useLocation();
+  // ฟังก์ชันในการดึงหรือสร้าง targetTime สำหรับ Order เฉพาะ
+  // const DEFAULT_DURATION = 60 * 1000; // 1 นาที
+  // const getInitialTargetTime = () => {
+  //   const storageKey = `targetTime_order_${orderId}`;
+  //   const stored = localStorage.getItem(storageKey);
+  //   if (stored) {
+  //     return new Date(stored);
+  //   } else {
+  //     // ถ้า expiresAt ถูกส่งเข้ามา ให้ใช้ expiresAt, ถ้าไม่ให้ใช้ default duration
+  //     const newTarget = new Date(Date.now() + DEFAULT_DURATION);
+  //     localStorage.setItem(storageKey, newTarget.toISOString());
+  //     return newTarget;
+  //   }
+  // };
+
+  // const [targetTime] = useState(getInitialTargetTime);
+  // const [timeLeft, setTimeLeft] = useState({});
+
+  // const calculateTimeLeft = () => {
+  //   const difference = targetTime - new Date();
+  //   if (difference > 0) {
+  //     return {
+  //       minutes: Math.floor((difference / 1000 / 60) % 60),
+  //       seconds: Math.floor((difference / 1000) % 60),
+  //     };
+  //   }
+  //   return { minutes: 0, seconds: 0 };
+  // };
+
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     const newTimeLeft = calculateTimeLeft();
+  //     setTimeLeft(newTimeLeft);
+
+  //     // ถ้าหมดเวลาแล้วให้ลบ targetTime ใน localStorage ของ Order นี้
+  //     if (newTimeLeft.minutes === 0 && newTimeLeft.seconds === 0) {
+  //       clearInterval(timer);
+  //       navigate("/");
+  //       localStorage.removeItem(`targetTime_order_${orderId}`);
+  //     }
+  //   }, 1000);
+
+  //   return () => clearInterval(timer);
+  // }, [targetTime, orderId]);
+
   const dispatch = useDispatch();
   const { loader, errorMessage, successMessage } = useSelector(
     (state) => state.payment
@@ -187,6 +230,15 @@ const Payment = () => {
                 <Text fontSize="lg" fontWeight="bold">
                   Order Summary
                 </Text>
+                {/* <div>
+                  {timeLeft.minutes !== undefined ? (
+                    <span>
+                    ກະລຸນະຊຳລະກ່ອນ  {timeLeft.minutes} ນາທີ {timeLeft.seconds} ວິນາທີ່
+                    </span>
+                  ) : (
+                    <span>ໝົດເວລາ</span>
+                  )}
+                </div> */}
                 <Divider my={3} />
                 <Text>
                   ຈຳນວນສິນຄ້າລວມຄ່າຈັດສົ່ງ {items || buy_product_item} ລາຍການ

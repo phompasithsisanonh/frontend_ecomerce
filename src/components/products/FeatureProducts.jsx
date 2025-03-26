@@ -1,11 +1,8 @@
 import {
   Box,
-  Button,
-  Center,
   Container,
   Flex,
   Grid,
-  Heading,
   IconButton,
   Image,
   Text,
@@ -136,7 +133,39 @@ const FeatureProducts = () => {
                 h="200px"
                 objectFit="cover"
               />
+              {p.stock === 1 ? (
+                <Box 
+                position="absolute" 
+                top={0} 
+                left={0} 
+                right={0} 
+                bottom={0} 
+                bg="rgba(255,0,0,0.2)" 
+                display="flex" 
+                alignItems="center" 
+                justifyContent="center" 
+                zIndex={10}
+              >
+                <Text
+                  position="absolute"
+                  bottom={2}
+                  left={2}
+                  fontSize="md"
+                  color="red.600"
+                  fontWeight="bold"
+                  bg="red.100"
+                  px={2}
+                  py={1}
+                  borderRadius="md"
+                  boxShadow="sm"
+                >
+                  ສິນຄ້າໝົດສະຕ໋ອກ
+                </Text>
+              </Box>
 
+              ) : (
+                ""
+              )}
               <Flex
                 position="absolute"
                 top={2}
@@ -200,7 +229,7 @@ const FeatureProducts = () => {
               )}
             </Box>
 
-            <Box p={4} textAlign={{ base: "left", md: "center" }}>
+            <Box p={4} textAlign={{ base: "left", md: "left" }}>
               <Text fontWeight="bold" fontSize="lg" isTruncated>
                 {p.name}
               </Text>
@@ -208,21 +237,19 @@ const FeatureProducts = () => {
                 ໝວດສິນຄ້າ: {p.category}
               </Text>
               <Text fontSize="sm" color="gray.500">
-               ຂາຍແລ້ວ: {p.sale}
+                ຂາຍແລ້ວ: {p.sale}
               </Text>
               <Text fontSize="md" color="teal.500" fontWeight="bold">
                 ລາຄາ: {p.price.toLocaleString()} ກີບ
               </Text>
-              <Flex justify="center" mt={2}>
-                <Rating ratings={p.rating} /> ({reviews.length})
+              <Flex justify="left" mt={2}>
+                <Box display="flex" alignItems="center">
+                  <Rating ratings={p.rating} />
+                  <Text fontSize="sm" color="gray.500">
+                    ({reviews.length})
+                  </Text>
+                </Box>
               </Flex>
-              {p.stock === 1 ? (
-                <Text fontSize="md" color="red" fontWeight="bold">
-                  ສິນຄ້າໝົດສະຕ໋ອກ
-                </Text>
-              ) : (
-                ""
-              )}
             </Box>
           </Box>
         ))}

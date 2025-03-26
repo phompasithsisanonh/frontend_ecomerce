@@ -3,11 +3,13 @@ import {
   Box,
   Button,
   Container,
+  Divider,
   Flex,
   HStack,
   IconButton,
   Image,
   Text,
+  VStack,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import "react-multi-carousel/lib/styles.css";
@@ -32,7 +34,7 @@ const Details = () => {
   const { id: slugId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { product, relatedProducts, moreProducts } = useSelector(
+  const { product, relatedProducts} = useSelector(
     (state) => state.home
   );
   const { userInfo } = useSelector((state) => state.auth);
@@ -40,7 +42,6 @@ const Details = () => {
     errorMessage,
     successMessage,
     wishlists,
-    wishlist_count,
   } = useSelector((state) => state.card);
   useEffect(() => {
     dispatch(product_details(slugId));
@@ -48,7 +49,7 @@ const Details = () => {
 
   const [image, setImage] = useState("");
   //comment rating reviews
-
+  console.log(relatedProducts);
   const responsive1 = {
     desktop: { breakpoint: { max: 3000, min: 1024 }, items: 4 },
     tablet: { breakpoint: { max: 1024, min: 768 }, items: 3 },
@@ -124,16 +125,14 @@ const Details = () => {
         state: {
           card_products: obj,
           price: price * quantity,
-          shipping_fee: 50,
           items: quantity,
         },
       });
     }
   };
-
+  console.log(product);
   ///ກົດໃຈ
   const [localWishlist, setLocalWishlist] = useState([]); // ✅ สร้าง state เก็บ wishlist
-  const [wishcount, setWishcount] = useState();
   // ✅ ดึง Wishlist เมื่อ Component โหลด
   useEffect(() => {
     if (userInfo) {
@@ -207,7 +206,7 @@ const Details = () => {
         <Text fontSize="2xl" fontWeight="bold" textAlign="center" mb={4}>
           Product Details
         </Text>
-        <Box borderWidth="1px" borderRadius="lg" overflow="hidden" p={4} mb={8}>
+        <Box borderWidth="1px" borderRadius="xl" overflow="hidden" p={4} mb={3}>
           <Flex flexDirection={{ base: "column", md: "row" }}>
             {/* Product Images */}
             <Container maxW={{ base: "100%", md: "40%" }} position="relative">
@@ -370,7 +369,46 @@ const Details = () => {
         ) : (
           <Text>{product.description}</Text>
         )}
+        <Box paddingTop={'10px'} onClick={()=>navigate(`/seller_profile/${product.sellerId._id}`)} cursor={'pointer'} padding={4} maxW="1200px" margin="auto">
+          {/* Single Product Detail Section */}
+          <Flex direction={{ base: "column", lg: "row" }} spacing={8}>
+            {/* Product Image and Details */}
+            <Box flex={2}>
+              <VStack align="flex-start" spacing={4}>
+                {/* Seller Profile Section */}
+                <Box
+                 
+                >
+                  <HStack spacing={4}>
+                    <Image
+                      src={product?.sellerId?.image}
+                      alt={product?.sellerId?.name}
+                      w="10%"
+                      h="10%"
+                      objectFit="cover"
+                      borderRadius="lg"
+                    />
+                    <VStack align="flex-start">
+                      <Text fontSize="lg" fontWeight="bold">
+                        ຊື່ຮ້ານ {product?.shopName}
+                      </Text>
 
+                      <HStack align="flex-start">
+                        <Text color="gray.500">
+                          {" "}
+                          ສະຖານະ: {product?.sellerId?.status}
+                        </Text>
+                        <Text color="gray.500"> ຜູ້ຕິດຕາມ: 300 ຄົນ</Text>
+                        <Text color="gray.500"> ຄະແນນນິຍົມ: 300 ຄະແນນ</Text>
+                      </HStack>
+                    </VStack>
+                  </HStack>
+                </Box>
+              </VStack>
+            </Box>
+          </Flex>
+        </Box>
+        <Divider/>
         {/* Related Products */}
         <Box>
           <Text fontSize="2xl" fontWeight="bold" mb={4}>

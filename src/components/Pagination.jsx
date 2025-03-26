@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Flex } from '@chakra-ui/react';
+import { Button, Flex } from '@chakra-ui/react';
 
 const Pagination = ({ pageNumber, setPageNumber, totalItem, parPage, showItem }) => {
   const totalPages = Math.ceil(totalItem / parPage);

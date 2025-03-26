@@ -72,7 +72,7 @@ export const authReducer = createSlice({
         state.loader = true;
       })
       .addCase(register.rejected, (state, { payload }) => {
-        state.errorMessage = payload.error;
+        state.errorMessage = payload.message;
         state.loader = false;
       })
       .addCase(register.fulfilled, (state, { payload }) => {
@@ -85,7 +85,7 @@ export const authReducer = createSlice({
         state.loader = true;
       })
       .addCase(login.rejected, (state, { payload }) => {
-        state.errorMessage = payload.error;
+        state.errorMessage = payload.message;
         state.loader = false;
       })
       .addCase(login.fulfilled, (state, { payload }) => {

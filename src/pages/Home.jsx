@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import Header from "../components/Header";
-import { Box, Container, Grid, Text } from "@chakra-ui/react";
+import { Box, Container, Grid } from "@chakra-ui/react";
 import Categorys from "../components/Categorys";
 import Banner from "../components/Banner";
 import FeatureProducts from "../components/products/FeatureProducts";
@@ -9,13 +9,10 @@ import Footer from "../components/Footer";
 import Search from "./Search";
 import { useDispatch, useSelector } from "react-redux";
 import { get_products } from "../store/reducers/homeReducers";
-import { get_wishlist } from "../store/reducers/cardReducer";
-
 const Home = () => {
   const dispatch = useDispatch();
   const {
     categorys,
-    products,
     latest_product,
     topRated_product,
     discount_product,
@@ -23,7 +20,7 @@ const Home = () => {
   useEffect(() => {
     dispatch(get_products());
   }, [dispatch]);
-  
+
   return (
     <div>
       <Header />
@@ -43,7 +40,7 @@ const Home = () => {
           gap={3}
         >
           <Box overflow="hidden">
-            <Products products={latest_product} title="ສິນຄ້າໃໝ່ລ່າສຸດ" />
+            <Products  products={latest_product} title="ສິນຄ້າໃໝ່ລ່າສຸດ" />
           </Box>
 
           <Box overflow="hidden">

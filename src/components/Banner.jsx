@@ -2,7 +2,7 @@ import React from "react";
 import Carousel from "react-multi-carousel";
 import { Link } from "react-router-dom";
 import "react-multi-carousel/lib/styles.css";
-import { Box, Container, Flex } from "@chakra-ui/react";
+import { Box, Container, Flex, Image } from "@chakra-ui/react";
 const Banner = () => {
   const responsive = {
     superLargeDesktop: {
@@ -37,7 +37,12 @@ const Banner = () => {
             >
               {[1, 2, 3, 4, 5, 6].map((img, i) => (
                 <Link key={i} to="#">
-                  <img
+                  <Image
+                    borderRadius={"20px"}
+                    w="full"
+                    h="full"
+                    noOfLines={1}
+                    
                     src={`http://localhost:3000/images/banner/${img}.jpg`}
                     alt={`Banner ${img}`}
                   />
