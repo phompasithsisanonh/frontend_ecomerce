@@ -7,7 +7,6 @@ import {
   Divider,
   Flex,
   HStack,
-  VStack,
   Heading,
   IconButton,
   Container,

@@ -24,8 +24,6 @@ import {
   ModalCloseButton,
   ModalBody,
   ModalFooter,
-  HStack,
-  VStack,
 } from "@chakra-ui/react";
 import { edit_profile, messageClear } from "../../store/reducers/authReducer";
 import toast from "react-hot-toast";

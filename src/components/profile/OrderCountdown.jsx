@@ -1,10 +1,7 @@
 import { Text } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 
-import { useDispatch } from "react-redux";
-
 const OrderCountdown = ({ orderDate }) => {
-  const dispatch = useDispatch();
   const orderTime = new Date(orderDate).getTime();
   const expiryTime = orderTime + 2 * 60 * 1000; // 30 minutes after order date
   // 30 * 60 * 1000

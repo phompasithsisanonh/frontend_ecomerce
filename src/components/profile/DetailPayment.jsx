@@ -3,7 +3,6 @@ import {
   Box,
   Text,
   Flex,
-  Avatar,
   Badge,
   Stack,
   Button,

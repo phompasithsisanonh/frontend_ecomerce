@@ -129,7 +129,7 @@ const StatusShipping = () => {
     if (userInfo && userInfo._id) {
       dispatch(get_statusgpayment({ userId: userInfo._id }));
     }
-  }, [dispatch, userInfo]);
+  }, [dispatch, userInfo,shipping]);
 
   // Steps for shipping status with icons
   const steps = [
