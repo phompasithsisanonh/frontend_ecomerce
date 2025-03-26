@@ -159,8 +159,7 @@ const SearchProducts = () => {
       })
     );
   }, [
-    state.values[0],
-    state.values[1],
+    state.values, // เปลี่ยนจาก state.values[0], state.values[1] เป็น state.values
     category,
     rating,
     sortPrice,
