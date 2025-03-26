@@ -5,7 +5,9 @@ export const add_to_card = createAsyncThunk(
   "card/add_to_card",
   async (info, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.post("/add-to-card", info);
+      const { data } = await api.post("/add-to-card", info,{
+        withCredentials: true,
+      });
       console.log(data);
       return fulfillWithValue(data);
     } catch (error) {
@@ -19,7 +21,9 @@ export const get_card_products = createAsyncThunk(
   "card/get_card",
   async (userId, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.get(`/get_card/${userId}`);
+      const { data } = await api.get(`/get_card/${userId}`,{
+        withCredentials: true,
+      });
       console.log(data);
       return fulfillWithValue(data);
     } catch (error) {
@@ -32,7 +36,9 @@ export const quanlity_plus = createAsyncThunk(
   "card/quanlity_plus",
   async (card_id, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.post(`/query-product-plus/${card_id}`);
+      const { data } = await api.post(`/query-product-plus/${card_id}`,{
+        withCredentials: true,
+      });
       return fulfillWithValue(data);
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -44,7 +50,9 @@ export const quanlity_mius = createAsyncThunk(
   "card/quanlity_mius",
   async (card_id, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.post(`/query-product-minus/${card_id}`);
+      const { data } = await api.post(`/query-product-minus/${card_id}`,{
+        withCredentials: true,
+      });
       // console.log(data)
       return fulfillWithValue(data);
     } catch (error) {
@@ -56,7 +64,9 @@ export const deleteCard = createAsyncThunk(
   "card/delete-card",
   async (card_id, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.post(`/delete-card/${card_id}`);
+      const { data } = await api.post(`/delete-card/${card_id}`,{
+        withCredentials: true,
+      });
       // console.log(data)
       return fulfillWithValue(data);
     } catch (error) {
@@ -68,7 +78,9 @@ export const wishlist = createAsyncThunk(
   "card/wishlist",
   async ({ id, productId }, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.post(`/wishlist/${id}`, { productId });
+      const { data } = await api.post(`/wishlist/${id}`, { productId },{
+        withCredentials: true,
+      });
       // console.log(data)
       return fulfillWithValue(data);
     } catch (error) {
@@ -80,7 +92,9 @@ export const get_wishlist = createAsyncThunk(
   "card/get_wishlist",
   async ({ id }, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.get(`/get_wishlish/${id}`);
+      const { data } = await api.get(`/get_wishlish/${id}`,{
+        withCredentials: true,
+      });
       // console.log(data)
       return fulfillWithValue(data);
     } catch (error) {

@@ -8,6 +8,8 @@ export const applyCoupon = createAsyncThunk(
       const { data } = await api.post(`/apply-coupon`, {
         code: couponCode,
         idproducts,
+      },{
+        withCredentials: true,
       });
       return fulfillWithValue(data);
     } catch (error) {

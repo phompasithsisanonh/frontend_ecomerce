@@ -4,7 +4,9 @@ export const get_category = createAsyncThunk(
   "product/get_category",
   async (_, { fulfillWithValue }) => {
     try {
-      const { data } = await api.get("/get-categorys");
+      const { data } = await api.get("/get-categorys",{
+        withCredentials: true,
+      });
       // console.log(data)
       return fulfillWithValue(data);
     } catch (error) {
@@ -16,7 +18,9 @@ export const get_products = createAsyncThunk(
   "product/get_products",
   async (_, { fulfillWithValue }) => {
     try {
-      const { data } = await api.get("/get-products");
+      const { data } = await api.get("/get-products",{
+        withCredentials: true,
+      });
       return fulfillWithValue(data);
     } catch (error) {
       console.log(error.respone);
@@ -27,7 +31,9 @@ export const price_range_product = createAsyncThunk(
   "product/price_range_product",
   async (_, { fulfillWithValue }) => {
     try {
-      const { data } = await api.get("/price-range-latest-product");
+      const { data } = await api.get("/price-range-latest-product",{
+        withCredentials: true,
+      });
       console.log(data);
       return fulfillWithValue(data);
     } catch (error) {
@@ -58,7 +64,9 @@ export const query_products = createAsyncThunk(
       // ตัดเครื่องหมาย & ท้ายสุดในกรณีที่ไม่มีการใช้งานตัวสุดท้าย
       query = query.endsWith("&") ? query.slice(0, -1) : query;
 
-      const { data } = await api.get(query);
+      const { data } = await api.get(query ,{
+        withCredentials: true,
+      });
       return fulfillWithValue(data);
     } catch (error) {
       console.error("Error:", error.response);
@@ -71,7 +79,9 @@ export const product_details = createAsyncThunk(
   async (slug, { fulfillWithValue, rejectWithValue }) => {
     try {
       console.log(slug);
-      const { data } = await api.get(`/product-details/${slug}`);
+      const { data } = await api.get(`/product-details/${slug}`,{
+        withCredentials: true,
+      });
       //  console.log(data)
       return fulfillWithValue(data);
     } catch (error) {
@@ -90,6 +100,8 @@ export const add_reviews = createAsyncThunk(
         rating,
         review,
         name,
+      },{
+        withCredentials: true,
       });
       //  console.log(data)
       return fulfillWithValue(data);
@@ -103,7 +115,9 @@ export const get_reviews = createAsyncThunk(
   "product/get_reviews",
   async ({ productId }, { fulfillWithValue, rejectWithValue }) => {
     try {
-      const { data } = await api.get(`/get-reviews/${productId}`);
+      const { data } = await api.get(`/get-reviews/${productId}`,{
+        withCredentials: true,
+      });
       //  console.log(data)
       return fulfillWithValue(data);
     } catch (error) {
@@ -116,7 +130,9 @@ export const get_profile_seller= createAsyncThunk(
   "product/get_profile_seller",
   async ({ sellerId }, { fulfillWithValue, rejectWithValue }) => {
     try {
-      const { data } = await api.get(`/get_profile_seller/${sellerId}`);
+      const { data } = await api.get(`/get_profile_seller/${sellerId}`,{
+        withCredentials: true,
+      });
       //  console.log(data)
       return fulfillWithValue(data);
     } catch (error) {

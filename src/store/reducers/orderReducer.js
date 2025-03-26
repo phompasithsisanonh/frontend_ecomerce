@@ -22,6 +22,8 @@ export const place_order = createAsyncThunk(
         userId, //ຜູ້ໃຊ້
         navigate,
         couponCode
+      },{
+        withCredentials: true,
       });
 
       navigate("/payment", {
@@ -44,7 +46,9 @@ export const get_orders = createAsyncThunk(
   "order/get_orders",
   async ({ customerId, status }, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.get(`/get-orders/${customerId}/${status}`);
+      const { data } = await api.get(`/get-orders/${customerId}/${status}`,{
+        withCredentials: true,
+      });
       // console.log(data)
       return fulfillWithValue(data);
     } catch (error) {
@@ -57,7 +61,9 @@ export const get_found = createAsyncThunk(
   "order/get_found",
   async ({ get_id}, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.post(`/get_found`,{ get_id});
+      const { data } = await api.post(`/get_found`,{ get_id},{
+        withCredentials: true,
+      });
       // console.log(data)
       return fulfillWithValue(data);
     } catch (error) {
@@ -71,7 +77,9 @@ export const delete_customer_order = createAsyncThunk(
   "order/delete_customer_order",
   async ({id}, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.post(`/delete_customer_order/${id}`,);
+      const { data } = await api.post(`/delete_customer_order/${id}`,{
+        withCredentials: true,
+      });
       // console.log(data)
       return fulfillWithValue(data);
     } catch (error) {

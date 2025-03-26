@@ -13,7 +13,9 @@ export const register = createAsyncThunk(
   "auth/register-customer",
   async (info, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.post("/register-customer", info);
+      const { data } = await api.post("/register-customer", info,{
+        withCredentials: true,
+      });
       localStorage.setItem("customerToken", data.token);
       console.log(data);
       return fulfillWithValue(data);
@@ -26,7 +28,9 @@ export const login = createAsyncThunk(
   "auth/login-customer",
   async (info, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.post("/login-customer", info);
+      const { data } = await api.post("/login-customer", info,{
+        withCredentials: true,
+      });
       localStorage.setItem("customerToken", data.token);
       console.log(data);
       return fulfillWithValue(data);
@@ -40,7 +44,9 @@ export const edit_profile = createAsyncThunk(
   "auth/edit_profile",
   async ({ userId, formData }, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.post(`/edit_profile/${userId}`, formData);
+      const { data } = await api.post(`/edit_profile/${userId}`, formData ,{
+        withCredentials: true,
+      });
       return fulfillWithValue(data);
     } catch (error) {
       return rejectWithValue(error.response.data);

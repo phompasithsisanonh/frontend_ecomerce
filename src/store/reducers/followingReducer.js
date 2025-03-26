@@ -5,7 +5,9 @@ export const followingAdd = createAsyncThunk(
   "following/followingReducer",
   async ({ userId, followSellerId }, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.post(`/follow`, { userId, followSellerId });
+      const { data } = await api.post(`/follow`, { userId, followSellerId },{
+        withCredentials: true,
+      });
       // console.log(data)
       return fulfillWithValue(data);
     } catch (error) {
@@ -17,7 +19,9 @@ export const following_get = createAsyncThunk(
   "following/following_get ",
   async ({ userId }, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.get(`/get-follow/${userId}`);
+      const { data } = await api.get(`/get-follow/${userId}`,{
+        withCredentials: true,
+      });
       // console.log(data)
       return fulfillWithValue(data);
     } catch (error) {
@@ -36,6 +40,8 @@ export const unfollowing = createAsyncThunk(
       const { data } = await api.post(`/unfollow`, {
         userId,
         unfollowSellerId,
+      },{
+        withCredentials: true,
       });
       // console.log(data)
       return fulfillWithValue(data);
