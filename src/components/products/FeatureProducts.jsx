@@ -21,6 +21,8 @@ import {
   wishlist,
 } from "../../store/reducers/cardReducer";
 import toast from "react-hot-toast";
+// เพิ่มการนำเข้า react-ga4 เพื่อใช้ Google Analytics
+import ReactGA from "react-ga4";
 
 const FeatureProducts = () => {
   const [isHovered, setIsHovered] = useState(null);
@@ -32,6 +34,32 @@ const FeatureProducts = () => {
   );
   const navigate = useNavigate();
   const [localWishlist, setLocalWishlist] = useState([]);
+
+  // Initialize Google Analytics และส่ง Page View เมื่อเข้าหน้า FeatureProducts
+  useEffect(() => {
+    ReactGA.initialize("G-JHRZEYPL67"); // แทนที่ด้วย Measurement ID ของคุณ
+    ReactGA.send({
+      hitType: "pageview",
+      page: "/featured-products",
+      title: "Featured Products",
+    });
+  }, []);
+
+  // ติดตาม Event view_item_list เมื่อโหลดรายการสินค้าเด่น
+  useEffect(() => {
+    if (products.length > 0) {
+      ReactGA.event({
+        category: "E-commerce",
+        action: "view_item_list",
+        item_list_name: "Featured Products",
+        items: products.map((p) => ({
+          item_id: p._id,
+          item_name: p.name,
+          price: p.price,
+        })),
+      });
+    }
+  }, [products]);
 
   useEffect(() => {
     if (userInfo) {
@@ -56,7 +84,20 @@ const FeatureProducts = () => {
             quantity: 1,
           })
         ).then(() => {
-          dispatch(get_card_products(userInfo._id)); // ดึงข้อมูลใหม่หลังการเพิ่ม
+          dispatch(get_card_products(userInfo._id));
+          // ติดตาม Event add_to_cart เมื่อเพิ่มสินค้าลงตะกร้า
+          ReactGA.event({
+            category: "E-commerce",
+            action: "add_to_cart",
+            items: [
+              {
+                item_id: product._id,
+                item_name: product.name,
+                price: product.price,
+                quantity: 1,
+              },
+            ],
+          });
         });
       }
     }
@@ -69,6 +110,18 @@ const FeatureProducts = () => {
     }
     dispatch(wishlist({ id: userInfo._id, productId })).then(() => {
       dispatch(get_wishlist({ id: userInfo._id }));
+      // ติดตาม Event add_to_wishlist เมื่อเพิ่มสินค้าใน Wishlist
+      ReactGA.event({
+        category: "E-commerce",
+        action: "add_to_wishlist",
+        items: [
+          {
+            item_id: productId,
+            item_name: products.find((p) => p._id === productId)?.name || "",
+            price: products.find((p) => p._id === productId)?.price || 0,
+          },
+        ],
+      });
     });
     setLocalWishlist((prev) =>
       prev.includes(productId)
@@ -134,35 +187,34 @@ const FeatureProducts = () => {
                 objectFit="cover"
               />
               {p.stock === 1 ? (
-                <Box 
-                position="absolute" 
-                top={0} 
-                left={0} 
-                right={0} 
-                bottom={0} 
-                bg="rgba(255,0,0,0.2)" 
-                display="flex" 
-                alignItems="center" 
-                justifyContent="center" 
-                zIndex={10}
-              >
-                <Text
+                <Box
                   position="absolute"
-                  bottom={2}
-                  left={2}
-                  fontSize="md"
-                  color="red.600"
-                  fontWeight="bold"
-                  bg="red.100"
-                  px={2}
-                  py={1}
-                  borderRadius="md"
-                  boxShadow="sm"
+                  top={0}
+                  left={0}
+                  right={0}
+                  bottom={0}
+                  bg="rgba(255,0,0,0.2)"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  zIndex={10}
                 >
-                  ສິນຄ້າໝົດສະຕ໋ອກ
-                </Text>
-              </Box>
-
+                  <Text
+                    position="absolute"
+                    bottom={2}
+                    left={2}
+                    fontSize="md"
+                    color="red.600"
+                    fontWeight="bold"
+                    bg="red.100"
+                    px={2}
+                    py={1}
+                    borderRadius="md"
+                    boxShadow="sm"
+                  >
+                    ສິນຄ້າໝົດສະຕ໋ອກ
+                  </Text>
+                </Box>
               ) : (
                 ""
               )}
