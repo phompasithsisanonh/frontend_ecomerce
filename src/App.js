@@ -16,6 +16,7 @@ import Payment from "./pages/Payment";
 import Dashbord from "./pages/Dashbord";
 import { useLocation } from "react-router-dom";
 import SellerProfile from "./pages/SellerProfile";
+// import Fint from "./Fint";
 function App() {
   const { pathname } = useLocation();
   const dispatch = useDispatch();
@@ -36,9 +37,10 @@ function App() {
       <Route path="/shipping" element={<Shipping />} />
       <Route path="/payment" element={<Payment />} />
       <Route path="/dashboard" element={<Dashbord />} />
-      <Route path='/seller_profile/:id' element={<SellerProfile/>}/> 
+      <Route path="/seller_profile/:id" element={<SellerProfile />} />
       <Route path="/details/products/:id" element={<Details />} />
       <Route path="/products/search?" element={<SearchProducts />} />
+      {/* <Route path="/" element={<Fint />} /> */}
     </Routes>
   );
 }
