@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+// เพิ่มการนำเข้า react-ga4 เพื่อใช้ Google Analytics
+import ReactGA from "react-ga4";
 import {
   Box,
   Container,
@@ -50,7 +52,6 @@ const Card = () => {
   const [itemToDelete, setItemToDelete] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [couponCode, setCouponCode] = useState("");
-  // Chakra UI color mode values
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const hoverBg = useColorModeValue("gray.50", "gray.700");
@@ -63,6 +64,19 @@ const Card = () => {
   );
   const { userInfo } = useSelector((state) => state.auth);
   let price_ = price - (data?.value / 100) * price;
+
+  // Initialize Google Analytics เมื่อหน้าโหลดครั้งแรก
+  useEffect(() => {
+    // เริ่มต้น GA4 ด้วย Measurement ID ของคุณ (แทนที่ G-XXXXXXX)
+    ReactGA.initialize("G-JHRZEYPL67");
+    // ส่ง Page View เมื่อเข้าหน้า Card
+    ReactGA.send({
+      hitType: "pageview",
+      page: "/card",
+      title: "Shopping Cart",
+    });
+  }, []);
+
   useEffect(() => {
     if (userInfo?._id) {
       dispatch(get_card_products(userInfo._id));
@@ -77,8 +91,20 @@ const Card = () => {
         setIsLoading(true);
         if (condition === "plus" && stock > 0) {
           await dispatch(quanlity_plus(productId));
+          // ติดตาม Event เมื่อเพิ่มจำนวนสินค้า
+          ReactGA.event({
+            category: "E-commerce",
+            action: "increase_quantity",
+            label: productId,
+          });
         } else if (condition === "minus") {
           await dispatch(quanlity_mius(productId));
+          // ติดตาม Event เมื่อลดจำนวนสินค้า
+          ReactGA.event({
+            category: "E-commerce",
+            action: "decrease_quantity",
+            label: productId,
+          });
         }
         await dispatch(get_card_products(userInfo._id));
       } catch (error) {
@@ -96,6 +122,12 @@ const Card = () => {
       setIsLoading(true);
       await dispatch(deleteCard(itemToDelete));
       await dispatch(get_card_products(userInfo._id));
+      // ติดตาม Event เมื่อลบสินค้าออกจากตะกร้า
+      ReactGA.event({
+        category: "E-commerce",
+        action: "remove_from_cart",
+        label: itemToDelete,
+      });
       toast.success("Item removed from cart");
     } catch (error) {
       toast.error("Failed to remove item");
@@ -107,6 +139,20 @@ const Card = () => {
   }, [dispatch, itemToDelete, userInfo._id, onClose]);
 
   const handleOrderConfirmation = useCallback(() => {
+    // ติดตาม Event เมื่อยืนยันการสั่งซื้อ
+    ReactGA.event({
+      category: "E-commerce",
+      action: "begin_checkout",
+      value: isNaN(price_) ? price : price_,
+      items: card_products.flatMap((seller) =>
+        seller.products.map((p) => ({
+          item_id: p.productInfo._id,
+          item_name: p.productInfo.name,
+          price: p.productInfo.price,
+          quantity: p.quantity,
+        }))
+      ),
+    });
     if (isNaN(price_)) {
       navigate("/shipping", {
         state: { card_products, price, buy_product_item, couponCode },
@@ -125,7 +171,14 @@ const Card = () => {
     const chenckIDproducts2 = chenckIDproducts.flat();
     const idproducts = chenckIDproducts2.map((item) => item.productInfo._id);
     dispatch(applyCoupon({ couponCode: couponCode, idproducts: idproducts }));
+    // ติดตาม Event เมื่อใช้คูปอง
+    ReactGA.event({
+      category: "E-commerce",
+      action: "apply_coupon",
+      label: couponCode,
+    });
   };
+
   useEffect(() => {
     if (successMessage) {
       toast.success(successMessage);
@@ -136,6 +189,7 @@ const Card = () => {
       dispatch(messageClear());
     }
   }, [successMessage, errorMessage, dispatch]);
+
   useEffect(() => {
     return () => {
       dispatch(resetCoupon()); // Reset coupon เมื่อออกจากหน้า
@@ -264,7 +318,7 @@ const Card = () => {
                         {seller.shopName}
                       </Text>
                       <Badge ml={2} colorScheme="blue">
-                       ສິນຄ້າ {seller.products.length} ລາຍການ
+                        ສິນຄ້າ {seller.products.length} ລາຍການ
                       </Badge>
                     </Flex>
                     <VStack spacing={4}>
@@ -307,18 +361,26 @@ const Card = () => {
                     <VStack spacing={3} align="stretch">
                       <Flex justify="space-between">
                         <Text color="gray.600">Subtotal</Text>
-                        <Text>
-                          {price?.toLocaleString()}
-                          ກີບ
-                        </Text>
+                        <Text>{price?.toLocaleString()} ກີບ</Text>
                       </Flex>
                       <Flex
                         justify="space-between"
                         fontWeight="bold"
                         fontSize="lg"
                       >
-                        <Text color="red">ຄູປອງສ່ວນຫຼຸດ {isNaN(data?.value) ?  0:data?.value} %</Text>
-                        <Text color="red">-{isNaN(data?.value) ? 0:(price *(data?.value)/100).toLocaleString()} ກີບ</Text>
+                        <Text color="red">
+                          ຄູປອງສ່ວນຫຼຸດ {isNaN(data?.value) ? 0 : data?.value} %
+                        </Text>
+                        <Text color="red">
+                          -
+                          {isNaN(data?.value)
+                            ? 0
+                            : (
+                                (price * data?.value) /
+                                100
+                              ).toLocaleString()}{" "}
+                          ກີບ
+                        </Text>
                       </Flex>
                       <Divider />
                       <Flex
