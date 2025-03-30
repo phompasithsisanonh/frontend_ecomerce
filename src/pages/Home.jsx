@@ -9,7 +9,7 @@ import Footer from "../components/Footer";
 import Search from "./Search";
 import { useDispatch, useSelector } from "react-redux";
 import { get_products } from "../store/reducers/homeReducers";
-const Home = () => {
+const Home = ({controls}) => {
   const dispatch = useDispatch();
   const {
     categorys,
@@ -23,12 +23,12 @@ const Home = () => {
 
   return (
     <div>
-      <Header />
+      <Header  />
       <Search categorys={categorys} />
       <Banner />
-      <Categorys categorys={categorys} />
+      <Categorys controls={controls} categorys={categorys} />
 
-      <FeatureProducts />
+      <FeatureProducts  controls={controls}/>
 
       <Container maxW="85%">
         <Grid

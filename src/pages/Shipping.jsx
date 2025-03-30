@@ -26,13 +26,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { messageClear, place_order } from "../store/reducers/orderReducer";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { get_profile_customer } from "../store/reducers/authReducer";
 
 const Shipping = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const toast = useToast();
 
-  const { userInfo } = useSelector((state) => state.auth);
+  const { userInfo ,get_customer} = useSelector((state) => state.auth);
   const { errorMessage, successMessage } = useSelector((state) => state.order);
   const {
     state: {
@@ -45,13 +46,13 @@ const Shipping = () => {
     },
   } = useLocation();
   const [formData, setFormData] = useState({
-    name: userInfo?.name || "",
-    address: userInfo?.address || "",
-    phone: userInfo?.phone || "",
-    branch: userInfo?.branch || "",
-    province: userInfo?.province || "",
-    city: userInfo?.city || "",
-    transport: userInfo?.transport || "",
+    name:  "",
+    address:  "",
+    phone:  "",
+    branch: "",
+    province:"",
+    city: "",
+    transport:  "",
   });
 
   const [touched, setTouched] = useState({});
@@ -151,7 +152,34 @@ const Shipping = () => {
       navigate("/login");
     }
   }, [successMessage, errorMessage, dispatch, navigate, userInfo, toast]);
-
+  useEffect(() => {
+    if (userInfo) {
+      dispatch(
+        get_profile_customer({
+          id: userInfo._id,
+        })
+      );
+    }
+  }, [userInfo, dispatch]);
+   useEffect(() => {
+      if (get_customer) {
+        setFormData({
+          name: get_customer.name || "",
+          email: get_customer.email || "",
+          phone: get_customer.phone || 0,
+          method: get_customer.method || "",
+          address: get_customer.address || "",
+          province: get_customer.province || "",
+          city: get_customer.city || "",
+          transport: get_customer.transport || "",
+          branch: get_customer.branch || "",
+          images: get_customer.images || "",
+        });
+      }
+      
+    },[get_customer])
+     
+    
   return (
     <Container maxW="container.xl" py={8}>
       <Header />

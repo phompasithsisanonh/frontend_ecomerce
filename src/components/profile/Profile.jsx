@@ -25,23 +25,25 @@ import {
   ModalBody,
   ModalFooter,
 } from "@chakra-ui/react";
-import { edit_profile, messageClear } from "../../store/reducers/authReducer";
+import { edit_profile, get_profile_customer, messageClear } from "../../store/reducers/authReducer";
 import toast from "react-hot-toast";
 
 const Profile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isModalOpen1, setIsModalOpen1] = useState(false);
-  const { userInfo, successMessage, errorMessage } = useSelector(
+  const { userInfo, successMessage, errorMessage, get_customer } = useSelector(
     (state) => state.auth
   );
+  
   const handleOpenModal1 = () => {
     setIsModalOpen1(true);
   };
-  console.log(userInfo);
+  
   const handleCloseModal1 = () => {
     setIsModalOpen1(false);
   };
+  
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -56,23 +58,6 @@ const Profile = () => {
     images: "",
   });
   const [imagePreview, setImagePreview] = useState(null);
-
-  useEffect(() => {
-    if (userInfo) {
-      setFormData({
-        name: userInfo.name || "",
-        email: userInfo.email || "",
-        phone: userInfo.phone || 0,
-        method: userInfo.method || "",
-        address: userInfo.address || "",
-        province: userInfo.province || "",
-        city: userInfo.city || "",
-        transport: userInfo.transport || "",
-        branch: userInfo.branch || "",
-        images: userInfo.images || "",
-      });
-    }
-  }, [userInfo]);
 
   const handleEditToggle = () => setEditMode((prev) => !prev);
 
@@ -99,9 +84,11 @@ const Profile = () => {
         userId: userInfo._id,
         formData: formDataToSend,
       })
-    ); // Send formData including image
+    );
     setEditMode(false);
   };
+  
+  // Check for authentication and handle messages
   useEffect(() => {
     if (successMessage) {
       toast.success(successMessage);
@@ -116,6 +103,40 @@ const Profile = () => {
       return navigate("/login");
     }
   }, [successMessage, errorMessage, dispatch, navigate, userInfo]);
+  
+  // Load user profile data
+  useEffect(() => {
+    if (userInfo) {
+      dispatch(
+        get_profile_customer({
+          id: userInfo._id,
+        })
+      );
+    }
+  }, [userInfo, dispatch]);
+  
+  // Update form data when customer profile is loaded
+  useEffect(() => {
+    if (get_customer) {
+      setFormData({
+        name: get_customer.name || "",
+        email: get_customer.email || "",
+        phone: get_customer.phone || 0,
+        method: get_customer.method || "",
+        address: get_customer.address || "",
+        province: get_customer.province || "",
+        city: get_customer.city || "",
+        transport: get_customer.transport || "",
+        branch: get_customer.branch || "",
+        images: get_customer.images || "",
+      });
+      
+      // Set image preview if there's an image URL
+      if (get_customer.images && typeof get_customer.images === 'string') {
+        setImagePreview(get_customer.images);
+      }
+    }
+  }, [get_customer]);
 
   return (
     <Box p={4} bg="gray.50" borderRadius="md" shadow="md">
@@ -176,7 +197,7 @@ const Profile = () => {
                   )}
                 </FormControl>
                 <FormControl>
-                  <Button colorScheme="red" onClick={() => handleOpenModal1()}>
+                  <Button colorScheme="red" onClick={handleOpenModal1}>
                     ເພີ່ມທີ່ຢູ່ຈັດສົ່ງ
                   </Button>
                 </FormControl>
@@ -191,18 +212,18 @@ const Profile = () => {
                 >
                   <ModalOverlay />
                   <ModalContent>
-                    {" "}
-                    {/* ✅ ย้าย ref มาที่นี่ */}
                     <ModalHeader>ທີ່ຢູ່ຈັດສົ່ງ</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                      <FormControl>
-                        <FormLabel>ທີ່ຢູ່ບ້ານ</FormLabel>
-                        <Input
-                          name="address"
-                          value={formData.address}
-                          onChange={handleChange}
-                        />
+                      <Stack spacing={3}>
+                        <FormControl>
+                          <FormLabel>ທີ່ຢູ່ບ້ານ</FormLabel>
+                          <Input
+                            name="address"
+                            value={formData.address}
+                            onChange={handleChange}
+                          />
+                        </FormControl>
                         <FormControl>
                           <FormLabel>ແຂວງ</FormLabel>
                           <Input
@@ -211,7 +232,6 @@ const Profile = () => {
                             onChange={handleChange}
                           />
                         </FormControl>
-
                         <FormControl>
                           <FormLabel>ເມືອງ</FormLabel>
                           <Input
@@ -236,7 +256,7 @@ const Profile = () => {
                             onChange={handleChange}
                           />
                         </FormControl>
-                      </FormControl>
+                      </Stack>
                     </ModalBody>
                     <ModalFooter>
                       <Button ml={2} onClick={handleCloseModal1}>
@@ -255,24 +275,23 @@ const Profile = () => {
               >
                 <Avatar
                   size="xl"
-                  name={userInfo.name}
-                  src={userInfo?.images || "https://via.placeholder.com/150"}
+                  name={get_customer?.name || userInfo?.name}
+                  src={get_customer?.images || userInfo?.images || "https://via.placeholder.com/150"}
                 />
                 <Box>
                   <Text fontSize="2xl" fontWeight="bold">
-                    {userInfo.name}
+                    {get_customer?.name || userInfo?.name}
                   </Text>
-                  <Text>Email: {userInfo.email}</Text>
-                  <Text>Phone: {userInfo?.phone}</Text>
+                  <Text>Email: {get_customer?.email || userInfo?.email}</Text>
+                  <Text>Phone: {get_customer?.phone || userInfo?.phone}</Text>
                   <Text>
-                    Method: <Badge>{userInfo.method}</Badge>
+                    Method: <Badge>{get_customer?.method || userInfo?.method}</Badge>
                   </Text>
-
-                  <Text>ທີ່ຢູ່ບ້ານ: {userInfo?.address}</Text>
-                  <Text>ເມືອງ: {userInfo?.city}</Text>
-                  <Text>ແຂວງ: {userInfo?.province}</Text>
-                  <Text>ບໍລິສັດຂົນສົ່ງ: {userInfo?.transport}</Text>
-                  <Text>ສາຂາໃກ້ບ້ານທ່ານ: {userInfo?.branch}</Text>
+                  <Text>ທີ່ຢູ່ບ້ານ: {get_customer?.address || userInfo?.address}</Text>
+                  <Text>ເມືອງ: {get_customer?.city || userInfo?.city}</Text>
+                  <Text>ແຂວງ: {get_customer?.province || userInfo?.province}</Text>
+                  <Text>ບໍລິສັດຂົນສົ່ງ: {get_customer?.transport || userInfo?.transport}</Text>
+                  <Text>ສາຂາໃກ້ບ້ານທ່ານ: {get_customer?.branch || userInfo?.branch}</Text>
                 </Box>
               </Flex>
             )}

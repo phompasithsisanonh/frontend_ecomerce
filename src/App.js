@@ -11,7 +11,7 @@ import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { get_category } from "./store/reducers/homeReducers";
 import SearchProducts from "./pages/SearchProducts";
-
+import {  useAnimation } from "framer-motion";
 import Payment from "./pages/Payment";
 import Dashbord from "./pages/Dashbord";
 import { useLocation } from "react-router-dom";
@@ -27,9 +27,22 @@ function App() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
+  const controls = useAnimation();
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      controls.start({
+        opacity: scrollY > 100 ? 1 : 0,
+        y: scrollY > 100 ? 0 : 20,
+      });
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [controls]);
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<Home controls={controls} />} />
       <Route path="/login" element={<LoginCustomer />} />
       <Route path="/register" element={<RegisterCustomer />} />
       <Route path="/shop" element={<Shop />} />

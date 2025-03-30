@@ -10,13 +10,19 @@ import {
   Image,
   Text,
   VStack,
+  useColorModeValue,
+  Heading,
+  Tag,
+  Tooltip,
+  useBreakpointValue,
+  Stack,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import "react-multi-carousel/lib/styles.css";
 import Carousel from "react-multi-carousel";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header";
-import { FaHeart, FaRegHeart } from "react-icons/fa6";
+import { FaHeart, FaRegHeart, FaStore } from "react-icons/fa6";
 import Rating from "../components/Rating";
 import { FaFacebookF, FaTwitter, FaLinkedin, FaGithub } from "react-icons/fa6";
 import Reviws from "../components/Reviws";
@@ -30,26 +36,36 @@ import {
   messageClear,
   wishlist,
 } from "../store/reducers/cardReducer";
+import { motion } from "framer-motion";
+
+const MotionBox = motion(Box);
+const MotionFlex = motion(Flex);
+const MotionImage = motion(Image);
+const MotionButton = motion(Button);
+
 const Details = () => {
   const { id: slugId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { product, relatedProducts} = useSelector(
-    (state) => state.home
-  );
+  const { product, relatedProducts } = useSelector((state) => state.home);
   const { userInfo } = useSelector((state) => state.auth);
-  const {
-    errorMessage,
-    successMessage,
-    wishlists,
-  } = useSelector((state) => state.card);
+  const { errorMessage, successMessage, wishlists } = useSelector(
+    (state) => state.card
+  );
+
+  // Colors
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const textColor = useColorModeValue("gray.800", "white");
+  const accentColor = useColorModeValue("blue.500", "blue.300");
+  const cardBg = useColorModeValue("white", "gray.700");
+  
   useEffect(() => {
     dispatch(product_details(slugId));
   }, [slugId, dispatch]);
 
   const [image, setImage] = useState("");
-  //comment rating reviews
-  console.log(relatedProducts);
+  
   const responsive1 = {
     desktop: { breakpoint: { max: 3000, min: 1024 }, items: 4 },
     tablet: { breakpoint: { max: 1024, min: 768 }, items: 3 },
@@ -58,6 +74,7 @@ const Details = () => {
 
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("reviews");
+  
   const inc = () => {
     if (quantity >= product.stock) {
       toast.error("ສິນຄ້າໝົດ");
@@ -91,7 +108,7 @@ const Details = () => {
       }
     }
   };
-  console.log(product);
+
   const buynow = () => {
     if (!userInfo) {
       navigate("/login");
@@ -130,10 +147,8 @@ const Details = () => {
       });
     }
   };
-  console.log(product);
-  ///ກົດໃຈ
-  const [localWishlist, setLocalWishlist] = useState([]); // ✅ สร้าง state เก็บ wishlist
-  // ✅ ดึง Wishlist เมื่อ Component โหลด
+
+  const [localWishlist, setLocalWishlist] = useState([]);
   useEffect(() => {
     if (userInfo) {
       dispatch(get_wishlist({ id: userInfo._id }));
@@ -146,24 +161,22 @@ const Details = () => {
       return;
     }
 
-    // Dispatch to update the wishlist in the backend
     dispatch(wishlist({ id: userInfo._id, productId }));
 
-    // Update the localWishlist state immediately to reflect the change in the UI
     setLocalWishlist((prev) => {
-      const isInWishlist = prev.includes(productId); // Check if product is already in the wishlist
+      const isInWishlist = prev.includes(productId);
       if (isInWishlist) {
-        return prev.filter((item) => item !== productId); // Remove the product if already in wishlist
+        return prev.filter((item) => item !== productId);
       } else {
-        return [...prev, productId]; // Add the product if not in wishlist
+        return [...prev, productId];
       }
     });
   };
 
   useEffect(() => {
-    // Sync localWishlist state with the redux wishlist state
-    setLocalWishlist(wishlists.map((item) => item.productId._id)); // Assuming wishlists contain objects with productId._id
+    setLocalWishlist(wishlists.map((item) => item.productId._id));
   }, [wishlists]);
+  
   useEffect(() => {
     if (successMessage) {
       toast.success(successMessage);
@@ -174,6 +187,7 @@ const Details = () => {
       dispatch(messageClear());
     }
   }, [successMessage, errorMessage, dispatch]);
+  
   const shareUrl = "details/products/67a1ff8f384227dfdaf7de74";
   const socialLinks = [
     {
@@ -199,26 +213,59 @@ const Details = () => {
       url: `htts://github.co/share?url=${encodeURIComponent(shareUrl)}`,
     },
   ];
+
+  const buttonSize = useBreakpointValue({ base: "sm", md: "md" });
+  
   return (
-    <Box w="full" mt={{ base: 6, md: 0 }}>
+    <MotionBox 
+      w="full" 
+      mt={{ base: 6, md: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <Header />
-      <Box mt={8} p={4}>
-        <Text fontSize="2xl" fontWeight="bold" textAlign="center" mb={4}>
-          Product Details
-        </Text>
-        <Box borderWidth="1px" borderRadius="xl" overflow="hidden" p={4} mb={3}>
-          <Flex flexDirection={{ base: "column", md: "row" }}>
-            {/* Product Images */}
-            <Container maxW={{ base: "100%", md: "40%" }} position="relative">
-              <Image
-                src={image || product.images?.[0] || "/placeholder.jpg"}
-                alt={product.name}
-                w="100%"
-                h="50%"
-                objectFit="cover"
-                borderRadius="lg"
-              />
-              {product.images?.length > 0 && (
+      
+      <Container maxW="container.xl" mt={8} p={4}>
+        <MotionBox
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
+          mb={6}
+        >
+          <Divider mb={8} />
+        </MotionBox>
+
+        <MotionFlex 
+          flexDirection={{ base: "column", md: "row" }}
+          boxShadow="xl"
+          borderRadius="xl" 
+          overflow="hidden" 
+          bg={bgColor}
+          borderWidth="1px"
+          borderColor={borderColor}
+          mb={8}
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+        >
+          {/* Product Images */}
+          <Box flex={{ base: 1, md: 1 }} p={4}>
+            <MotionImage
+              src={image || product.images?.[0] || "/placeholder.jpg"}
+              alt={product.name}
+              w="100%"
+              h="400px"
+              objectFit="cover"
+              borderRadius="lg"
+              mb={4}
+              boxShadow="md"
+              whileHover={{ scale: 1.03 }}
+              transition={{ duration: 0.3 }}
+            />
+            
+            {product.images?.length > 0 && (
+              <Box>
                 <Carousel
                   responsive={responsive1}
                   autoPlay
@@ -227,219 +274,380 @@ const Details = () => {
                   showDots
                   infinite
                   dotListClass="custom-dot-list-style"
+                  containerClass="carousel-container"
+                  itemClass="carousel-item"
                 >
                   {product.images.map((img, idx) => (
-                    <Box
+                    <MotionBox
                       key={idx}
                       onClick={() => setImage(img)}
                       cursor="pointer"
                       borderWidth="1px"
                       borderRadius="md"
+                      borderColor={borderColor}
                       p={1}
-                      h="185px"
+                      mx={2}
+                      h="100px"
+                      initial={{ opacity: 0.8 }}
+                      whileHover={{ 
+                        scale: 1.05, 
+                        opacity: 1,
+                        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)" 
+                      }}
                     >
                       <Image
-                        borderRadius={"10px"}
+                        borderRadius="md"
                         src={img}
                         alt={`Image ${idx}`}
                         w="full"
                         h="full"
                         objectFit="cover"
                       />
-                    </Box>
+                    </MotionBox>
                   ))}
                 </Carousel>
-              )}
-            </Container>
+              </Box>
+            )}
+          </Box>
 
-            {/* Product Details */}
-            <Box w={{ base: "100%", md: "50%" }} p={4}>
-              <Text fontSize="lg" fontWeight="bold" mb={2}>
+          {/* Product Details */}
+          <MotionBox 
+            flex={{ base: 1, md: 1 }}
+            p={6}
+            bg={useColorModeValue("gray.50", "gray.900")}
+            initial={{ x: 20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          >
+            <VStack align="flex-start" spacing={4}>
+              <HStack>
+                {product.discount > 0 && (
+                  <Tag size="md" variant="solid" colorScheme="red" borderRadius="full">
+                    {product.discount}% OFF
+                  </Tag>
+                )}
+                <Badge colorScheme={product.stock > 1 ? "green" : "red"} px={2} py={1} borderRadius="md">
+                  {product.stock > 1 ? "In Stock" : "Out of Stock"}
+                </Badge>
+              </HStack>
+
+              <Text fontSize={'55px'} as="h2" size="lg" color={textColor}>
                 {product.name}
               </Text>
-              <Text fontSize="xl" color="blue.600" fontWeight="bold" mb={2}>
-                ລາຄາ: {product?.price?.toLocaleString()} ກີບ
-              </Text>
-              <Rating ratings={product.rating} />
-              <Text mt={4} color="gray.600">
-                ລາຍລະອຽດສິນຄ້າ:{product.description}
-              </Text>
-              <Flex direction={{ base: "column", md: "row" }} mt={4}>
+              
+              <HStack spacing={4} align="center">
+                <Rating ratings={product.rating} size="md" />
+                <Text color="gray.500">({product.rating ? product.rating.toFixed(1) : "0"} reviews)</Text>
+              </HStack>
+              
+              <Stack direction={{ base: "column", sm: "row" }} align="baseline" spacing={2}>
+                {product.discount > 0 && (
+                  <Text textDecoration="line-through" color="gray.500">
+                    {product?.price?.toLocaleString()} ກີບ
+                  </Text>
+                )}
+                <Text fontSize="2xl" fontWeight="bold" color={accentColor}>
+                  {product.discount > 0 
+                    ? (product.price - (product.price * product.discount / 100)).toLocaleString() 
+                    : product?.price?.toLocaleString()} ກີບ
+                </Text>
+              </Stack>
+              
+              <Divider />
+              
+              <Box>
+                <Text fontWeight="medium" mb={2}>ລາຍລະອຽດສິນຄ້າ:</Text>
+                <Text color="gray.600">{product.description}</Text>
+              </Box>
+              
+              <Flex direction="column" w="full" gap={4}>
                 <HStack spacing={4}>
-                  <Flex gap={2}>
-                    <Button isDisabled={quantity === 1} size="sm" onClick={dec}>
-                      -
-                    </Button>
-                    <Text fontSize="lg">{quantity}</Text>
-                    <Button
-                      isDisabled={quantity >= product.stock - 1}
-                      size="sm"
+                  <MotionFlex 
+                    align="center" 
+                    bg={useColorModeValue("gray.100", "gray.700")} 
+                    borderRadius="md" 
+                    p={1}
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <IconButton 
+                      isDisabled={quantity === 1} 
+                      size="sm" 
+                      onClick={dec}
+                      colorScheme="blue"
+                      variant="ghost"
+                      icon={<Text fontSize="xl">-</Text>}
+                    />
+                    <Text fontSize="lg" fontWeight="bold" px={4}>{quantity}</Text>
+                    <IconButton 
+                      isDisabled={quantity >= product.stock - 1} 
+                      size="sm" 
                       onClick={inc}
-                    >
-                      +
-                    </Button>
-                  </Flex>
-
-                  <Button
+                      colorScheme="blue"
+                      variant="ghost"
+                      icon={<Text fontSize="xl">+</Text>}
+                    />
+                  </MotionFlex>
+                  
+                  <MotionButton
+                    
                     onClick={() => handleAddToCart(product)}
-                    w={"150px"}
-                    size="sm"
+                    size={buttonSize}
                     colorScheme="blue"
+                    flexGrow={1}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
                     ເພີ່ມຕະກ້າ
-                  </Button>
-
-                  <Box>
-                    <IconButton
-                      borderRadius="10px"
-                      colorScheme={
-                        localWishlist.some((item) => item === product._id)
-                          ? "red"
-                          : ""
-                      }
-                      _hover={{ bg: "red.500" }}
-                      boxShadow="1px 2px 3px 0px rgba(0, 0, 0, 0.3)"
-                      aria-label="Add to Wishlist"
-                      icon={
-                        localWishlist.some((item) => item === product._id) ? (
-                          <FaHeart />
-                        ) : (
-                          <FaRegHeart color="black" />
-                        )
-                      }
-                      onClick={() => handleWishlist(product._id)}
-                      size="sm"
-                      boxSize={"40px"}
-                    />
-                  </Box>
+                  </MotionButton>
+                  
+                  <Tooltip label={localWishlist.some((item) => item === product._id) ? "Remove from Wishlist" : "Add to Wishlist"}>
+                    <MotionBox
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <IconButton
+                        aria-label="Add to Wishlist"
+                        icon={
+                          localWishlist.some((item) => item === product._id) ? (
+                            <FaHeart />
+                          ) : (
+                            <FaRegHeart />
+                          )
+                        }
+                        onClick={() => handleWishlist(product._id)}
+                        size={buttonSize}
+                        colorScheme={
+                          localWishlist.some((item) => item === product._id)
+                            ? "red"
+                            : "gray"
+                        }
+                        variant={
+                          localWishlist.some((item) => item === product._id)
+                            ? "solid"
+                            : "outline"
+                        }
+                        borderRadius="lg"
+                      />
+                    </MotionBox>
+                  </Tooltip>
+                </HStack>
+                
+                <HStack spacing={4}>
+                  <MotionButton 
+                    onClick={buynow} 
+                    colorScheme="red" 
+                    size={buttonSize}
+                    flexGrow={1}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    fontWeight="bold"
+                  >
+                    ຊື້ດຽວນີ້
+                  </MotionButton>
+                  
+                  <MotionButton 
+                    colorScheme="green" 
+                    size={buttonSize}
+                    flexGrow={1}
+                    leftIcon={<FaStore />}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    ສົນທະນາເຈົ້າຂອງຮ້ານ
+                  </MotionButton>
                 </HStack>
               </Flex>
-              <Box mt={4}>
-                <Text fontWeight="medium">Availability:</Text>
-                <Text>
-                  ມີໃນສະຕ໋ອກ
-                  <Badge ml={2} colorScheme={product.inStock ? "green" : "red"}>
-                    {product.stock === 1 ? "Out of Stock" : " Available"}
-                  </Badge>
-                </Text>
-              </Box>
-              <Flex mt={4} alignItems="center" gap={3}>
-                <Text fontSize={{ base: "10px", md: "20px" }}>Share on:</Text>
-                {socialLinks.map((link, idx) => (
-                  <IconButton
-                    key={idx}
-                    size="sm"
-                    bg="blue.500"
-                    color="white"
-                    icon={<link.icon />}
-                    _hover={{ bg: "blue.600" }}
-                    onClick={() => window.open(link.url, "_blank")}
-                  />
-                ))}
+              
+              <Divider />
+              
+              <Flex mt={2} alignItems="center" gap={3}>
+                <Text fontSize={{ base: "sm", md: "md" }}>Share on:</Text>
+                <HStack spacing={2}>
+                  {socialLinks.map((link, idx) => (
+                    <MotionBox
+                      key={idx}
+                      whileHover={{ scale: 1.2, rotate: 5 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <IconButton
+                        size="sm"
+                        bg={accentColor}
+                        color="white"
+                        icon={<link.icon />}
+                        _hover={{ bg: "blue.600" }}
+                        onClick={() => window.open(link.url, "_blank")}
+                        borderRadius="full"
+                      />
+                    </MotionBox>
+                  ))}
+                </HStack>
               </Flex>
-              <Flex mt={4} gap={3}>
-                <Button onClick={() => buynow()} colorScheme="red">
-                  ຊື້ດຽວນີ້
-                </Button>
-                <Button colorScheme="green">ສົນທະນາເຈົ້າຂອງຮ້ານ</Button>
-              </Flex>
-            </Box>
-          </Flex>
-        </Box>
+            </VStack>
+          </MotionBox>
+        </MotionFlex>
+
+        {/* Seller Profile Section */}
+        <MotionBox
+          boxShadow="md" 
+          borderRadius="xl" 
+          p={6} 
+          bg={bgColor}
+          borderWidth="1px"
+          borderColor={borderColor}
+          mb={8}
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+          onClick={() => navigate(`/seller_profile/${product.sellerId?._id}`)} 
+          cursor="pointer"
+          _hover={{ boxShadow: "lg", transform: "translateY(-4px)" }}
+        
+        >
+          <Heading as="h3" size="md" mb={4}>
+            Seller Information
+          </Heading>
+          
+          <HStack spacing={6} align="flex-start">
+            <MotionImage
+              src={product?.sellerId?.image}
+              alt={product?.sellerId?.name}
+              boxSize={{ base: "60px", md: "80px" }}
+              objectFit="cover"
+              borderRadius="full"
+              border="3px solid"
+              borderColor={accentColor}
+              whileHover={{ scale: 1.1, rotate: 5 }}
+            />
+            
+            <VStack align="flex-start" spacing={2}>
+              <Heading as="h4" size="md">
+                {product?.shopName}
+              </Heading>
+              
+              <HStack spacing={4} flexWrap="wrap">
+                <Tag size="sm" colorScheme="blue" variant="solid">
+                  {product?.sellerId?.status}
+                </Tag>
+                <Tag size="sm" colorScheme="purple">
+                  300 ຜູ້ຕິດຕາມ
+                </Tag>
+                <Tag size="sm" colorScheme="orange">
+                  300 ຄະແນນນິຍົມ
+                </Tag>
+              </HStack>
+            </VStack>
+          </HStack>
+        </MotionBox>
 
         {/* Tabs Section */}
-        <Flex justifyContent="center" mb={8} gap={4}>
-          <Button
-            variant={activeTab === "reviews" ? "solid" : "outline"}
-            colorScheme="teal"
-            onClick={() => setActiveTab("reviews")}
-          >
-            ລິວິວສິນຄ້າ
-          </Button>
-          <Button
-            variant={activeTab === "description" ? "solid" : "outline"}
-            colorScheme="orange"
-            onClick={() => setActiveTab("description")}
-          >
-            Description
-          </Button>
-        </Flex>
-        {activeTab === "reviews" ? (
-          <Reviws ratingid={product.rating} slugId={slugId} />
-        ) : (
-          <Text>{product.description}</Text>
-        )}
-        <Box paddingTop={'10px'} onClick={()=>navigate(`/seller_profile/${product.sellerId._id}`)} cursor={'pointer'} padding={4} maxW="1200px" margin="auto">
-          {/* Single Product Detail Section */}
-          <Flex direction={{ base: "column", lg: "row" }} spacing={8}>
-            {/* Product Image and Details */}
-            <Box flex={2}>
-              <VStack align="flex-start" spacing={4}>
-                {/* Seller Profile Section */}
-                <Box
-                 
-                >
-                  <HStack spacing={4}>
-                    <Image
-                      src={product?.sellerId?.image}
-                      alt={product?.sellerId?.name}
-                      w="10%"
-                      h="10%"
-                      objectFit="cover"
-                      borderRadius="lg"
-                    />
-                    <VStack align="flex-start">
-                      <Text fontSize="lg" fontWeight="bold">
-                        ຊື່ຮ້ານ {product?.shopName}
-                      </Text>
-
-                      <HStack align="flex-start">
-                        <Text color="gray.500">
-                          {" "}
-                          ສະຖານະ: {product?.sellerId?.status}
-                        </Text>
-                        <Text color="gray.500"> ຜູ້ຕິດຕາມ: 300 ຄົນ</Text>
-                        <Text color="gray.500"> ຄະແນນນິຍົມ: 300 ຄະແນນ</Text>
-                      </HStack>
-                    </VStack>
-                  </HStack>
-                </Box>
-              </VStack>
-            </Box>
+        <MotionBox
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+        >
+          <Flex justifyContent="center" mb={6} gap={4}>
+            <MotionButton
+              variant={activeTab === "reviews" ? "solid" : "outline"}
+              colorScheme="teal"
+              onClick={() => setActiveTab("reviews")}
+              size={buttonSize}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              borderRadius="full"
+            >
+              ລິວິວສິນຄ້າ
+            </MotionButton>
+            <MotionButton
+              variant={activeTab === "description" ? "solid" : "outline"}
+              colorScheme="orange"
+              onClick={() => setActiveTab("description")}
+              size={buttonSize}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              borderRadius="full"
+            >
+              Description
+            </MotionButton>
           </Flex>
-        </Box>
-        <Divider/>
+          
+          <MotionBox
+            p={6}
+            borderRadius="xl"
+            bg={bgColor}
+            borderWidth="1px"
+            borderColor={borderColor}
+            boxShadow="md"
+            mb={10}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            {activeTab === "reviews" ? (
+              <Reviws ratingid={product.rating} slugId={slugId} />
+            ) : (
+              <Text>{product.description}</Text>
+            )}
+          </MotionBox>
+        </MotionBox>
+
         {/* Related Products */}
-        <Box>
-          <Text fontSize="2xl" fontWeight="bold" mb={4}>
+        <MotionBox
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          mb={10}
+        >
+          <Heading as="h2" size="lg" mb={6}>
             Related Products
-          </Text>
+          </Heading>
+          
           <Carousel
             responsive={responsive1}
             swipeable
             draggable
             showDots
             infinite
+            containerClass="related-products-carousel"
           >
             {relatedProducts.map((prod, idx) => (
-              <Box key={idx} p={4} borderWidth="1px" borderRadius="lg">
-                <Image
+              <MotionBox 
+                key={idx} 
+                m={2}
+                p={4} 
+                borderWidth="1px" 
+                borderRadius="lg"
+                borderColor={borderColor}
+                bg={cardBg}
+                boxShadow="md"
+                overflow="hidden"
+                onClick={() => navigate(`/details/${prod._id}`)}
+                cursor="pointer"
+                whileHover={{ y: -8, scale: 1.03 }}
+                transition={{ duration: 0.3 }}
+              >
+                <MotionImage
                   src={prod.images?.[0] || "/placeholder.jpg"}
                   alt={prod.name}
                   w="full"
-                  h="150px"
+                  h="180px"
                   objectFit="cover"
+                  borderRadius="md"
+                  mb={3}
                 />
-                <Text fontWeight="bold" textAlign="center">
+                <Text fontWeight="bold" noOfLines={2} textAlign="center" mb={2}>
                   {prod.name}
                 </Text>
-              </Box>
+                <Text color={accentColor} fontWeight="semibold" textAlign="center">
+                  {prod?.price?.toLocaleString()} ກີບ
+                </Text>
+              </MotionBox>
             ))}
           </Carousel>
-        </Box>
-      </Box>
+        </MotionBox>
+      </Container>
+      
       <Footer />
-    </Box>
+    </MotionBox>
   );
 };
 

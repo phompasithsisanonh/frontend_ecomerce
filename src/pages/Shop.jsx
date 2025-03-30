@@ -40,6 +40,7 @@ import { Range } from "react-range";
 import "../components/css/Header.css";
 import Pagination from "../components/Pagination";
 import Search from "./Search";
+
 import {
   add_to_card,
   get_card_products,
@@ -49,15 +50,25 @@ import {
 } from "../store/reducers/cardReducer";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-// เพิ่มการนำเข้า react-ga4 เพื่อใช้ Google Analytics
-import ReactGA from "react-ga4";
-
 const Shop = () => {
   const dispatch = useDispatch();
-  const { products, categorys, priceRange, totalProducts, parPage } =
-    useSelector((state) => state.home);
-  const [sliderValue, setSliderValue] = useState([0, 1000]);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const {
+    products,
+    categorys,
+    priceRange,
+    totalProducts,
+    parPage,
+  } = useSelector((state) => state.home);
+  useEffect(() => {
+    dispatch(price_range_product());
+  }, [dispatch]);
+  const [sliderValue, setSliderValue] = useState([0, 1000]); // Initial value range
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // Drawer state for filters
+  useEffect(() => {
+    setState({
+      values: [priceRange.low, priceRange.high],
+    });
+  }, [priceRange]);
   const [state, setState] = useState({
     values: [priceRange.low, priceRange.high],
   });
@@ -69,40 +80,10 @@ const Shop = () => {
 
   const navigate = useNavigate();
   const { userInfo } = useSelector((state) => state.auth);
+  const [localWishlist, setLocalWishlist] = useState([]);
   const { errorMessage, successMessage, wishlists } = useSelector(
     (state) => state.card
   );
-  const [localWishlist, setLocalWishlist] = useState([]);
-
-  // Initialize Google Analytics และส่ง Page View เมื่อเข้าหน้า Shop
-  useEffect(() => {
-    ReactGA.initialize("G-JHRZEYPL67"); // แทนที่ด้วย Measurement ID ของคุณ
-    ReactGA.send({ hitType: "pageview", page: "/shop", title: "Shop Page" });
-  }, []);
-
-  // ติดตาม Event view_item_list เมื่อโหลดรายการสินค้า
-  useEffect(() => {
-    dispatch(price_range_product());
-    if (products.length > 0) {
-      ReactGA.event({
-        category: "E-commerce",
-        action: "view_item_list",
-        item_list_name: "Shop Page",
-        items: products.map((p) => ({
-          item_id: p._id,
-          item_name: p.name,
-          price: p.price,
-        })),
-      });
-    }
-  }, [dispatch, products]);
-
-  useEffect(() => {
-    setState({
-      values: [priceRange.low || 0, priceRange.high || 1000], // ป้องกัน undefined
-    });
-  }, [priceRange]);
-
   const queryCategory = (e, value) => {
     e.preventDefault();
     if (e.target.checked) {
@@ -111,7 +92,6 @@ const Shop = () => {
       setCategory("");
     }
   };
-
   const Rating = ({ value }) => {
     return (
       <Box>
@@ -150,20 +130,7 @@ const Shop = () => {
             quantity: 1,
           })
         ).then(() => {
-          dispatch(get_card_products(userInfo._id));
-          // ติดตาม Event add_to_cart เมื่อเพิ่มสินค้าลงตะกร้า
-          ReactGA.event({
-            category: "E-commerce",
-            action: "add_to_cart",
-            items: [
-              {
-                item_id: product._id,
-                item_name: product.name,
-                price: product.price,
-                quantity: 1,
-              },
-            ],
-          });
+          dispatch(get_card_products(userInfo._id)); // ดึงข้อมูลใหม่หลังการเพิ่ม
         });
       }
     }
@@ -176,18 +143,6 @@ const Shop = () => {
     }
     dispatch(wishlist({ id: userInfo._id, productId })).then(() => {
       dispatch(get_wishlist({ id: userInfo._id }));
-      // ติดตาม Event add_to_wishlist เมื่อเพิ่มสินค้าใน Wishlist
-      ReactGA.event({
-        category: "E-commerce",
-        action: "add_to_wishlist",
-        items: [
-          {
-            item_id: productId,
-            item_name: products.find((p) => p._id === productId)?.name || "",
-            price: products.find((p) => p._id === productId)?.price || 0,
-          },
-        ],
-      });
     });
     setLocalWishlist((prev) =>
       prev.includes(productId)
@@ -195,15 +150,14 @@ const Shop = () => {
         : [...prev, productId]
     );
   };
-
   const clearfilter = () => {
     setCategory("");
     setSortPrice("");
     setRating("");
-    setPageNumber(1);
+    setPageNumber(1); // Ensure pagination resets to the first page
     setState((prevState) => ({
       ...prevState,
-      values: [priceRange?.low ?? 0, priceRange?.high ?? 1000],
+      values: [priceRange?.low ?? 0, priceRange?.high ?? 1000], // Default values if undefined
     }));
   };
 
@@ -222,19 +176,25 @@ const Shop = () => {
         pageNumber,
       })
     );
-  }, [sortPrice, category, parPage, dispatch, pageNumber, rating, state.values]);
-
+  }, [
+    sortPrice,
+    category,
+    parPage,
+    dispatch,
+    pageNumber,
+    rating,
+    priceRange,
+    state.values, // เปลี่ยนจาก state.values[0], state.values[1] เป็น state.values
+  ]);
   useEffect(() => {
     dispatch(get_products());
     dispatch(price_range_product());
   }, [dispatch]);
-
   useEffect(() => {
     if (priceRange.low && priceRange.high) {
       setState({ values: [priceRange.low, priceRange.high] });
     }
   }, [priceRange]);
-
   useEffect(() => {
     if (successMessage) {
       toast.success(successMessage);
@@ -289,6 +249,11 @@ const Shop = () => {
               borderWidth="1px"
               borderRadius="15px"
               overflow="hidden"
+              transition="transform 0.3s ease, box-shadow 0.3s ease"
+              // _hover={{
+              //   transform: "translateY(-8px)",
+              //   boxShadow: "0 12px 24px rgba(0, 0, 0, 0.15)",
+              // }}
               position="relative"
               bg="white"
               w={{ base: "full", md: "45%" }}
@@ -336,12 +301,12 @@ const Shop = () => {
                   )}
                 />
               </Box>
-
               {/* Ratings Filter */}
               <Box mb={4}>
                 <Text fontSize="xl" mb={4}>
                   Ratings:
                 </Text>
+
                 <Flex cursor={"pointer"} onClick={() => setRating(5)} mb={4}>
                   <FaStar color="#EDBB0E" />
                   <FaStar color="#EDBB0E" />
@@ -368,6 +333,7 @@ const Shop = () => {
                   <FaStar color="#EDBB0E" />
                 </Flex>
               </Box>
+              {/* <Products title="Latest Products" /> */}
             </Box>
 
             {/* Sorting and Product List */}
@@ -375,6 +341,11 @@ const Shop = () => {
               borderWidth="1px"
               borderRadius="15px"
               overflow="hidden"
+              transition="transform 0.3s ease, box-shadow 0.3s ease"
+              // _hover={{
+              //   transform: "translateY(-8px)",
+              //   boxShadow: "0 12px 24px rgba(0, 0, 0, 0.15)",
+              // }}
               position="relative"
               bg="white"
               p={4}
@@ -508,6 +479,7 @@ const Shop = () => {
                   </Box>
                 ))}
               </Grid>
+              {/* Featured Products */}
             </Box>
           </Flex>
         </Center>
@@ -523,6 +495,16 @@ const Shop = () => {
       </Box>
 
       {/* Drawer for Filters (Mobile-Friendly) */}
+      {/* <IconButton
+        aria-label="Open Filters"
+        icon={<FaThList />}
+        variant="solid"
+        onClick={() => setIsDrawerOpen(true)}
+        display={{ base: "block", md: "none" }}
+        position="fixed"
+        bottom={4}
+        right={4}
+      /> */}
       <Drawer
         isOpen={isDrawerOpen}
         placement="left"

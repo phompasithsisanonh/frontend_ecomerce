@@ -34,7 +34,7 @@ export const price_range_product = createAsyncThunk(
       const { data } = await api.get("/price-range-latest-product",{
         withCredentials: true,
       });
-      console.log(data);
+     
       return fulfillWithValue(data);
     } catch (error) {
       console.log(error.respone);
@@ -78,7 +78,7 @@ export const product_details = createAsyncThunk(
   "product/product_details",
   async (slug, { fulfillWithValue, rejectWithValue }) => {
     try {
-      console.log(slug);
+     
       const { data } = await api.get(`/product-details/${slug}`,{
         withCredentials: true,
       });

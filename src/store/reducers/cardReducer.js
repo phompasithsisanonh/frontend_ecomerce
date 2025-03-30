@@ -8,7 +8,7 @@ export const add_to_card = createAsyncThunk(
       const { data } = await api.post("/add-to-card", info,{
         withCredentials: true,
       });
-      console.log(data);
+      
       return fulfillWithValue(data);
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -24,7 +24,7 @@ export const get_card_products = createAsyncThunk(
       const { data } = await api.get(`/get_card/${userId}`,{
         withCredentials: true,
       });
-      console.log(data);
+      
       return fulfillWithValue(data);
     } catch (error) {
       return rejectWithValue(error.response.data);

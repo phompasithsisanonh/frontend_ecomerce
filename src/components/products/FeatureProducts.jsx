@@ -21,10 +21,8 @@ import {
   wishlist,
 } from "../../store/reducers/cardReducer";
 import toast from "react-hot-toast";
-// เพิ่มการนำเข้า react-ga4 เพื่อใช้ Google Analytics
-import ReactGA from "react-ga4";
-
-const FeatureProducts = () => {
+import { motion } from "framer-motion";
+const FeatureProducts = ({ controls }) => {
   const [isHovered, setIsHovered] = useState(null);
   const dispatch = useDispatch();
   const { products, reviews } = useSelector((state) => state.home);
@@ -34,32 +32,6 @@ const FeatureProducts = () => {
   );
   const navigate = useNavigate();
   const [localWishlist, setLocalWishlist] = useState([]);
-
-  // Initialize Google Analytics และส่ง Page View เมื่อเข้าหน้า FeatureProducts
-  useEffect(() => {
-    ReactGA.initialize("G-JHRZEYPL67"); // แทนที่ด้วย Measurement ID ของคุณ
-    ReactGA.send({
-      hitType: "pageview",
-      page: "/featured-products",
-      title: "Featured Products",
-    });
-  }, []);
-
-  // ติดตาม Event view_item_list เมื่อโหลดรายการสินค้าเด่น
-  useEffect(() => {
-    if (products.length > 0) {
-      ReactGA.event({
-        category: "E-commerce",
-        action: "view_item_list",
-        item_list_name: "Featured Products",
-        items: products.map((p) => ({
-          item_id: p._id,
-          item_name: p.name,
-          price: p.price,
-        })),
-      });
-    }
-  }, [products]);
 
   useEffect(() => {
     if (userInfo) {
@@ -84,20 +56,7 @@ const FeatureProducts = () => {
             quantity: 1,
           })
         ).then(() => {
-          dispatch(get_card_products(userInfo._id));
-          // ติดตาม Event add_to_cart เมื่อเพิ่มสินค้าลงตะกร้า
-          ReactGA.event({
-            category: "E-commerce",
-            action: "add_to_cart",
-            items: [
-              {
-                item_id: product._id,
-                item_name: product.name,
-                price: product.price,
-                quantity: 1,
-              },
-            ],
-          });
+          dispatch(get_card_products(userInfo._id)); // ดึงข้อมูลใหม่หลังการเพิ่ม
         });
       }
     }
@@ -110,18 +69,6 @@ const FeatureProducts = () => {
     }
     dispatch(wishlist({ id: userInfo._id, productId })).then(() => {
       dispatch(get_wishlist({ id: userInfo._id }));
-      // ติดตาม Event add_to_wishlist เมื่อเพิ่มสินค้าใน Wishlist
-      ReactGA.event({
-        category: "E-commerce",
-        action: "add_to_wishlist",
-        items: [
-          {
-            item_id: productId,
-            item_name: products.find((p) => p._id === productId)?.name || "",
-            price: products.find((p) => p._id === productId)?.price || 0,
-          },
-        ],
-      });
     });
     setLocalWishlist((prev) =>
       prev.includes(productId)
@@ -168,142 +115,148 @@ const FeatureProducts = () => {
         gap={4}
       >
         {products.map((p, i) => (
-          <Box
-            key={i}
-            borderWidth="1px"
-            borderRadius="lg"
-            overflow="hidden"
-            transition="all 0.3s"
-            _hover={{ transform: "translateY(-8px)", shadow: "lg" }}
-            onMouseEnter={() => setIsHovered(i)}
-            onMouseLeave={() => setIsHovered(null)}
+          <motion.div
+            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.1 }}
+            animate={controls}
           >
-            <Box position="relative">
-              <Image
-                src={p.images[0]}
-                alt={p.name}
-                w="full"
-                h="200px"
-                objectFit="cover"
-              />
-              {p.stock === 1 ? (
-                <Box
+            <Box
+              key={i}
+              borderWidth="1px"
+              borderRadius="lg"
+              overflow="hidden"
+              transition="all 0.3s"
+              _hover={{ transform: "translateY(-8px)", shadow: "lg" }}
+              onMouseEnter={() => setIsHovered(i)}
+              onMouseLeave={() => setIsHovered(null)}
+            >
+              <Box position="relative">
+                <Image
+                  src={p.images[0]}
+                  alt={p.name}
+                  w="full"
+                  h="200px"
+                  objectFit="cover"
+                />
+                {p.stock === 1 ? (
+                  <Box
+                    position="absolute"
+                    top={0}
+                    left={0}
+                    right={0}
+                    bottom={0}
+                    bg="rgba(255,0,0,0.2)"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    zIndex={10}
+                  >
+                    <Text
+                      position="absolute"
+                      bottom={2}
+                      left={2}
+                      fontSize="md"
+                      color="red.600"
+                      fontWeight="bold"
+                      bg="red.100"
+                      px={2}
+                      py={1}
+                      borderRadius="md"
+                      boxShadow="sm"
+                    >
+                      ສິນຄ້າໝົດສະຕ໋ອກ
+                    </Text>
+                  </Box>
+                ) : (
+                  ""
+                )}
+                <Flex
                   position="absolute"
-                  top={0}
-                  left={0}
-                  right={0}
-                  bottom={0}
-                  bg="rgba(255,0,0,0.2)"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  zIndex={10}
+                  top={2}
+                  left={2}
+                  bg="red.500"
+                  color="white"
+                  px={2}
+                  py={1}
+                  rounded="md"
+                  fontSize="sm"
+                  fontWeight="bold"
                 >
-                  <Text
+                  {p.discount}% OFF
+                </Flex>
+
+                {isHovered === i && (
+                  <Flex
+                    justify="center"
+                    gap={2}
+                    p={2}
                     position="absolute"
                     bottom={2}
-                    left={2}
-                    fontSize="md"
-                    color="red.600"
-                    fontWeight="bold"
-                    bg="red.100"
-                    px={2}
-                    py={1}
-                    borderRadius="md"
-                    boxShadow="sm"
+                    w="full"
                   >
-                    ສິນຄ້າໝົດສະຕ໋ອກ
-                  </Text>
-                </Box>
-              ) : (
-                ""
-              )}
-              <Flex
-                position="absolute"
-                top={2}
-                left={2}
-                bg="red.500"
-                color="white"
-                px={2}
-                py={1}
-                rounded="md"
-                fontSize="sm"
-                fontWeight="bold"
-              >
-                {p.discount}% OFF
-              </Flex>
+                    <Tooltip label="ເພີ່ມຕະກ້າ">
+                      <IconButton
+                        icon={<FaCartShopping />}
+                        onClick={() => handleAddToCart(p)}
+                        colorScheme="teal"
+                        size="sm"
+                        aria-label="Add to Cart"
+                      />
+                    </Tooltip>
+                    <Tooltip label="ລາຍລະອຽດສິນຄ້າ">
+                      <IconButton
+                        icon={<FaEye />}
+                        onClick={() => navigate(`/details/products/${p._id}`)}
+                        colorScheme="teal"
+                        size="sm"
+                        aria-label="View Product"
+                      />
+                    </Tooltip>
+                    <Tooltip label="ເພີ່ມສິນຄ້າໂປຣດ">
+                      <IconButton
+                        icon={
+                          localWishlist.includes(p._id) ? (
+                            <FaHeart />
+                          ) : (
+                            <FaRegHeart />
+                          )
+                        }
+                        onClick={() => handleWishlist(p._id)}
+                        colorScheme={
+                          localWishlist.includes(p._id) ? "red" : "teal"
+                        }
+                        size="sm"
+                        aria-label="Add to Wishlist"
+                      />
+                    </Tooltip>
+                  </Flex>
+                )}
+              </Box>
 
-              {isHovered === i && (
-                <Flex
-                  justify="center"
-                  gap={2}
-                  p={2}
-                  position="absolute"
-                  bottom={2}
-                  w="full"
-                >
-                  <Tooltip label="ເພີ່ມຕະກ້າ">
-                    <IconButton
-                      icon={<FaCartShopping />}
-                      onClick={() => handleAddToCart(p)}
-                      colorScheme="teal"
-                      size="sm"
-                      aria-label="Add to Cart"
-                    />
-                  </Tooltip>
-                  <Tooltip label="ລາຍລະອຽດສິນຄ້າ">
-                    <IconButton
-                      icon={<FaEye />}
-                      onClick={() => navigate(`/details/products/${p._id}`)}
-                      colorScheme="teal"
-                      size="sm"
-                      aria-label="View Product"
-                    />
-                  </Tooltip>
-                  <Tooltip label="ເພີ່ມສິນຄ້າໂປຣດ">
-                    <IconButton
-                      icon={
-                        localWishlist.includes(p._id) ? (
-                          <FaHeart />
-                        ) : (
-                          <FaRegHeart />
-                        )
-                      }
-                      onClick={() => handleWishlist(p._id)}
-                      colorScheme={
-                        localWishlist.includes(p._id) ? "red" : "teal"
-                      }
-                      size="sm"
-                      aria-label="Add to Wishlist"
-                    />
-                  </Tooltip>
+              <Box p={4} textAlign={{ base: "left", md: "left" }}>
+                <Text fontWeight="bold" fontSize="lg" isTruncated>
+                  {p.name}
+                </Text>
+                <Text fontSize="sm" color="gray.500">
+                  ໝວດສິນຄ້າ: {p.category}
+                </Text>
+                <Text fontSize="sm" color="gray.500">
+                  ຂາຍແລ້ວ: {p.sale}
+                </Text>
+                <Text fontSize="md" color="teal.500" fontWeight="bold">
+                  ລາຄາ: {p.price.toLocaleString()} ກີບ
+                </Text>
+                <Flex justify="left" mt={2}>
+                  <Box display="flex" alignItems="center">
+                    <Rating ratings={p.rating} />
+                    <Text fontSize="sm" color="gray.500">
+                      ({reviews.length})
+                    </Text>
+                  </Box>
                 </Flex>
-              )}
+              </Box>
             </Box>
-
-            <Box p={4} textAlign={{ base: "left", md: "left" }}>
-              <Text fontWeight="bold" fontSize="lg" isTruncated>
-                {p.name}
-              </Text>
-              <Text fontSize="sm" color="gray.500">
-                ໝວດສິນຄ້າ: {p.category}
-              </Text>
-              <Text fontSize="sm" color="gray.500">
-                ຂາຍແລ້ວ: {p.sale}
-              </Text>
-              <Text fontSize="md" color="teal.500" fontWeight="bold">
-                ລາຄາ: {p.price.toLocaleString()} ກີບ
-              </Text>
-              <Flex justify="left" mt={2}>
-                <Box display="flex" alignItems="center">
-                  <Rating ratings={p.rating} />
-                  <Text fontSize="sm" color="gray.500">
-                    ({reviews.length})
-                  </Text>
-                </Box>
-              </Flex>
-            </Box>
-          </Box>
+          </motion.div>
         ))}
       </Grid>
     </Container>

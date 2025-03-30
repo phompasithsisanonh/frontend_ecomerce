@@ -13,11 +13,11 @@ export const register = createAsyncThunk(
   "auth/register-customer",
   async (info, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.post("/register-customer", info,{
+      const { data } = await api.post("/register-customer", info, {
         withCredentials: true,
       });
       localStorage.setItem("customerToken", data.token);
-      console.log(data);
+
       return fulfillWithValue(data);
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -28,11 +28,11 @@ export const login = createAsyncThunk(
   "auth/login-customer",
   async (info, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.post("/login-customer", info,{
+      const { data } = await api.post("/login-customer", info, {
         withCredentials: true,
       });
       localStorage.setItem("customerToken", data.token);
-      console.log(data);
+
       return fulfillWithValue(data);
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -44,7 +44,7 @@ export const edit_profile = createAsyncThunk(
   "auth/edit_profile",
   async ({ userId, formData }, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.post(`/edit_profile/${userId}`, formData ,{
+      const { data } = await api.post(`/edit_profile/${userId}`, formData, {
         withCredentials: true,
       });
       return fulfillWithValue(data);
@@ -54,7 +54,19 @@ export const edit_profile = createAsyncThunk(
   }
 );
 // End Method
-
+export const get_profile_customer = createAsyncThunk(
+  "auth/get_profile_customer",
+  async ({ id }, { rejectWithValue, fulfillWithValue }) => {
+    try {
+      const { data } = await api.get(`/get_customer/${id}`, {
+        withCredentials: true,
+      });
+      return fulfillWithValue(data);
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 export const authReducer = createSlice({
   name: "auth",
   initialState: {
@@ -62,6 +74,7 @@ export const authReducer = createSlice({
     userInfo: decodeToken(localStorage.getItem("customerToken")),
     errorMessage: "",
     successMessage: "",
+    get_customer: [],
   },
   reducers: {
     messageClear: (state, _) => {
@@ -111,6 +124,10 @@ export const authReducer = createSlice({
       .addCase(edit_profile.fulfilled, (state, { payload }) => {
         state.successMessage = payload.message;
         state.loader = false;
+      })
+      .addCase(get_profile_customer.fulfilled, (state, { payload }) => {
+        state.loader = false;
+        state.get_customer = payload.data;
       });
   },
 });

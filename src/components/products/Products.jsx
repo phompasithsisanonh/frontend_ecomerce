@@ -10,23 +10,31 @@ import {
   Img,
   Badge,
 } from "@chakra-ui/react";
-
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion"; // Import Framer Motion
+
+// Animation variants for the product cards
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 }, // Initial state (hidden)
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.1, // Stagger effect for each card
+      duration: 0.5,
+      ease: "easeOut",
+    },
+  }),
+  exit: { opacity: 0, y: -20, transition: { duration: 0.3 } }, // Exit animation
+};
 
 const Products = ({ title, products }) => {
   const [currentPage, setCurrentPage] = useState(0);
- const  navigate =useNavigate()
+  const navigate = useNavigate();
+
   // Ensure products is a 2D array, if not already
   const productsArray = Array.isArray(products[0]) ? products : [products];
 
-  // for (let i = 0; i < products.length; i ++) {
-  //   d.push(products.slice(i, i + 4));
-  // }
-  // const products = [
-  //   [product1, product2, product3],  // หน้าแรก (currentPage = 0)
-  //   [product4, product5, product6],  // หน้าที่สอง (currentPage = 1)
-  //   [product7, product8, product9]   // หน้าที่สาม (currentPage = 2)
-  // ];ຈະຢູ່ໃນຮູບແບບນີ້ ເມື່ອມີການຄິກ  0,1,2,3,4,5,6,7,8,9 ເພື່ອສະແດງຜົນຂອງສິນຄ້າທີ່ມີຢູ່ໃນຮູບແບບນີ້
   // Calculate total number of pages
   const totalPages = productsArray.length;
 
@@ -85,66 +93,65 @@ const Products = ({ title, products }) => {
         justifyContent="center"
       >
         {productsArray[currentPage]?.map((p, i) => (
-          <Box
-            key={i}
-          
-            w="100%"
-            p={3}
-            borderWidth="1px"
-            borderRadius="lg"
-            boxShadow="md"
-            bg="white"
-            transition="transform 0.3s ease"
-            _hover={{ transform: "scale(1.05)" }}
+          <motion.div
+            key={i} // Use a unique key for each product
+            custom={i} // Pass index for staggered animation
+            initial="hidden" // Start from hidden state
+            animate="visible" // Animate to visible state
+            exit="exit" // Exit animation when unmounted
+            variants={cardVariants} // Use the defined variants
           >
-            <Img
+            <Box
+              w="auto"
+              p={3}
+              borderWidth="1px"
               borderRadius="lg"
-              objectFit="cover"
-              w="100%"
-              cursor={"pointer"}  
-              onClick={() => navigate(`/details/products/${p._id}`)}
-              h={{ base: "120px", md: "150px", lg: "200px" }}
-              src={p.images[0]}
-              alt={p.name}
-            />
-            <Box mt={2} color="gray.700" textAlign="left">
-            <Badge
-                fontSize={{ base: "sm", md: "md", lg: "lg" }}
-                fontWeight="bold"
-                noOfLines={1}
-                colorScheme={'red'}
-                width={'85px'}
-                borderRadius={'2px'}
-              >
-                {p.discount}% OFF
-              </Badge>
-              <Text
-                fontSize={{ base: "sm", md: "md", lg: "lg" }}
-                fontWeight="bold"
-                noOfLines={1}
-              >
-                {p.name}
-              </Text>
-              
-             
-              <Text
-                fontSize={{ base: "xs", md: "sm", lg: "md" }}
-                color="teal.500"
-                fontWeight="semibold"
-                mt={1}
-              >
-                ລາຄາ {p.price.toLocaleString()} ກີບ
-              </Text>
+              boxShadow="md"
+              bg="white"
+              transition="transform 0.3s ease"
+              _hover={{ transform: "scale(1.05)" }}
+            >
+              <Img
+                borderRadius="lg"
+                objectFit="cover"
+                w="100%"
+                cursor="pointer"
+                onClick={() => navigate(`/details/products/${p._id}`)}
+                h={{ base: "120px", md: "150px", lg: "200px" }}
+                src={p.images[0]}
+                alt={p.name}
+              />
+              <Box mt={2} color="gray.700" textAlign="left">
+                <Badge
+                  fontSize={{ base: "sm", md: "md", lg: "lg" }}
+                  fontWeight="bold"
+                  noOfLines={1}
+                  colorScheme="red"
+                  width="85px"
+                  borderRadius="2px"
+                >
+                  {p.discount}% OFF
+                </Badge>
+                <Text
+                  fontSize={{ base: "sm", md: "md", lg: "lg" }}
+                  fontWeight="bold"
+                  noOfLines={1}
+                >
+                  {p.name}
+                </Text>
+                <Text
+                  fontSize={{ base: "xs", md: "sm", lg: "md" }}
+                  color="teal.500"
+                  fontWeight="semibold"
+                  mt={1}
+                >
+                  ລາຄາ {p.price.toLocaleString()} ກີບ
+                </Text>
+              </Box>
             </Box>
-          </Box>
+          </motion.div>
         ))}
       </Grid>
-      {/* Page indicator */}
-      {/* <Flex justify="center" align="center" mt={4}>
-        <Text color="gray.500">
-          Page {currentPage + 1} of {totalPages}
-        </Text>
-      </Flex> */}
     </Flex>
   );
 };
