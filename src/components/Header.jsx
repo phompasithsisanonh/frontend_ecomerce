@@ -13,6 +13,8 @@ import {
   DrawerContent,
   DrawerCloseButton,
   Divider,
+  Button,
+  useDisclosure,
 } from "@chakra-ui/react";
 import {
   FaFacebookF,
@@ -26,30 +28,48 @@ import {
   FaBars,
 } from "react-icons/fa6";
 import { MdEmail } from "react-icons/md";
-import {
-  IoMdPhonePortrait,
-  IoMdLogOut,
-} from "react-icons/io";
+import { IoMdPhonePortrait, IoMdLogOut } from "react-icons/io";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { get_wishlist } from "../store/reducers/cardReducer";
+import { motion } from "framer-motion";
+
+// Create motion components with Chakra UI
+const MotionBox = motion(Box);
+const MotionFlex = motion(Flex);
+const MotionText = motion(Text);
+const MotionIconButton = motion(IconButton);
+
 const Header = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const { userInfo } = useSelector((state) => state.auth);
   const { card_product_count, wishlist_count } = useSelector(
     (state) => state.card
   );
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [scrolled, setScrolled] = useState(false);
+
+  // Check for scroll position to create sticky header effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 60) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (userInfo) {
       dispatch(get_wishlist({ id: userInfo._id }));
     }
   }, [dispatch, userInfo]);
-
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const menuItems = [
     { label: "ໜ້າຫຼັກ", path: "/" },
@@ -58,225 +78,408 @@ const Header = () => {
     { label: "ກ່ຽວກັບພວກເຮົາ", path: "/about" },
     { label: "ຕິດຕໍ່ພວກເຮົາ", path: "/contact" },
   ];
-const handleLogout = () => { 
-  localStorage.removeItem("userInfo");
-  localStorage.removeItem("customerToken");
-  navigate("/login");
-}
+
+  const handleLogout = () => {
+    localStorage.removeItem("userInfo");
+    localStorage.removeItem("customerToken");
+    navigate("/login");
+  };
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        duration: 0.3,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { type: "spring", stiffness: 300 },
+    },
+  };
+
+  // const logoVariants = {
+  //   hover: {
+  //     scale: 1.05,
+  //     rotate: 5,
+  //     transition: { duration: 0.3 },
+  //   },
+  // };
+
+  const buttonVariants = {
+    hover: {
+      scale: 1.1,
+      transition: { duration: 0.2 },
+    },
+    tap: {
+      scale: 0.95,
+      transition: { duration: 0.1 },
+    },
+  };
+
   return (
-    <Box w="full" bg="white" boxShadow="sm">
+    <MotionBox
+      w="full"
+      bg="white"
+      boxShadow={scrolled ? "md" : "sm"}
+      position={scrolled ? "relative" : "relative"}
+      top={0}
+      zIndex={1000}
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ type: "spring", stiffness: 100 }}
+    >
       <Box
-        bg={useColorModeValue("blue.100", "gray.900")}
+        bg={useColorModeValue("blue.50", "gray.900")}
         display={{ base: "none", md: "block" }}
       >
         <Container maxW="85%" mx="auto">
-          <Flex
+          <MotionFlex
             justify="space-between"
             align="center"
             h="50px"
-            color="gray.500"
+            color="gray.600"
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
           >
             <HStack spacing={8}>
-              <Flex align="center" gap={2}>
+              <MotionFlex
+                align="center"
+                gap={2}
+                variants={itemVariants}
+                whileHover={{ color: "blue.500" }}
+              >
                 <MdEmail />
-                <Text>support@gmail.com</Text>
-              </Flex>
-              <Flex align="center" gap={2}>
+                <Text>phompasit2323@gmail.com</Text>
+              </MotionFlex>
+              <MotionFlex
+                align="center"
+                gap={2}
+                variants={itemVariants}
+                whileHover={{ color: "blue.500" }}
+              >
                 <IoMdPhonePortrait />
-                <Text>042422323</Text>
-              </Flex>
+                <Text>+856 02096947226</Text>
+              </MotionFlex>
             </HStack>
 
             <HStack spacing={10}>
-              <HStack spacing={4}>
-                <Link href="#">
-                  <FaFacebookF />
-                </Link>
-                <Link href="#">
-                  <FaTwitter />
-                </Link>
-                <Link href="#">
-                  <FaLinkedin />
-                </Link>
-                <Link href="#">
-                  <FaGithub />
-                </Link>
+              <HStack spacing={6}>
+                {[
+                  { icon: <FaFacebookF />, color: "#4267B2" },
+                  { icon: <FaTwitter />, color: "#1DA1F2" },
+                  { icon: <FaLinkedin />, color: "#0077B5" },
+                  { icon: <FaGithub />, color: "#333333" },
+                ].map((social, index) => (
+                  <MotionBox
+                    key={index}
+                    variants={itemVariants}
+                    whileHover={{
+                      scale: 1.2,
+                      color: social.color,
+                      transition: { duration: 0.2 },
+                    }}
+                  >
+                    <Link href="#">{social.icon}</Link>
+                  </MotionBox>
+                ))}
               </HStack>
-              {/* <Menu>
-                <MenuButton as={Button} rightIcon={<IoMdArrowDropdown />}>
-                  Language
-                </MenuButton>
-                <MenuList>
-                  <MenuItem>Hindi</MenuItem>
-                  <MenuItem>English</MenuItem>
-                </MenuList>
-              </Menu> */}
+
               {userInfo ? (
                 <RouterLink to="/dashboard">
-                  <Flex align="center" gap={2}>
+                  <MotionFlex
+                    align="center"
+                    gap={2}
+                    variants={itemVariants}
+                    whileHover={{ color: "blue.500" }}
+                  >
                     <FaUser />
                     <Text>{userInfo.name}</Text>
-                    <IconButton
+                    <MotionIconButton
                       aria-label="Logout"
-                      onClick={()=>handleLogout()}
+                      onClick={() => handleLogout()}
                       icon={<IoMdLogOut />}
                       colorScheme="red"
-                      boxShadow="md" // Soft shadow for better UI
-                      size="md" // Standard button size
-                      _hover={{ bg: "red.500", transform: "scale(1.05)" }} // Hover effect
-                      _active={{ bg: "red.600", transform: "scale(0.95)" }} // Press effect
+                      size="sm"
+                      variants={buttonVariants}
+                      whileHover="hover"
+                      whileTap="tap"
                     />
-                  </Flex>
+                  </MotionFlex>
                 </RouterLink>
               ) : (
                 <RouterLink to="/login">
-                  <Flex align="center" gap={2}>
+                  <MotionFlex
+                    align="center"
+                    gap={2}
+                    variants={itemVariants}
+                    whileHover={{ color: "blue.500" }}
+                  >
                     <FaLock />
                     <Text>Login</Text>
-                  </Flex>
+                  </MotionFlex>
                 </RouterLink>
               )}
             </HStack>
-          </Flex>
+          </MotionFlex>
         </Container>
       </Box>
 
       <Container maxW="85%" mx="auto">
-        <Flex justify="space-between" align="center" py={4}>
-          <Box>
-            <RouterLink to="/">
-              <Text fontSize="xl" fontWeight="bold">
-                LOGO
-              </Text>
-            </RouterLink>
-          </Box>
+        <MotionFlex
+          justify="space-between"
+          align="center"
+          py={4}
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+        >
+          <RouterLink to="/">
+            <MotionText
+              fontSize="3xl"
+              fontWeight="bold"
+              color="gray.800"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              Easyshop
+            </MotionText>
+            {/* <MotionBox
+              variants={logoVariants}
+              whileHover="hover"
+              position="relative"
+              width="100px"
+              height="100px"
+            >
+              <MotionBox
+                position="absolute"
+                borderRadius="full"
+                width="full"
+                height="full"
+                bgGradient="linear(to-r, purple.400, purple.600)"
+                initial={{ opacity: 0.7 }}
+                whileHover={{ 
+                  opacity: 0.9,
+                  boxShadow: "0 0 15px rgba(128, 90, 213, 0.6)",
+                }}
+              />
+              <Image
+                alt="Shop Logo"
+                borderRadius="full"
+                boxSize="100px"
+                objectFit="cover"
+                src={logocompany}
+                zIndex={1}
+              />
+            </MotionBox> */}
+          </RouterLink>
 
           <HStack spacing={8} display={{ base: "none", md: "flex" }}>
-            {menuItems.map((item) => (
+            {menuItems.map((item, index) => (
               <RouterLink key={item.label} to={item.path}>
-                <Text>{item.label}</Text>
+                <MotionText
+                  fontSize="lg"
+                  fontWeight="medium"
+                  variants={itemVariants}
+                  whileHover={{
+                    color: "purple.500",
+                    y: -2,
+                    transition: { type: "spring", stiffness: 300 },
+                  }}
+                  position="relative"
+                  _after={{
+                    content: '""',
+                    position: "absolute",
+                    bottom: "-2px",
+                    left: 0,
+                    width: "0%",
+                    height: "2px",
+                    bg: "purple.500",
+                    transition: "width 0.3s ease",
+                  }}
+                  _hover={{
+                    _after: {
+                      width: "100%",
+                    },
+                  }}
+                >
+                  {item.label}
+                </MotionText>
               </RouterLink>
             ))}
           </HStack>
 
-          <Flex align="center" gap={5} position="relative">
-            <IconButton
-              aria-label="Wishlist"
-              icon={<FaHeart />}
-              onClick={() => navigate(userInfo ? "/dashboard" : "/login")}
-              position="relative"
-            />
-            {wishlist_count > 0 && (
-              <Box
-                position="absolute"
-                bg="red.500"
-                rounded="full"
-                w="20px"
-                h="20px"
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                color="white"
-                fontSize="xs"
-                top={0}
-                right={0}
-                left={0}
-                bottom={0}
-              >
-                {wishlist_count}
-              </Box>
-            )}
+          <MotionFlex align="center" gap={5} variants={containerVariants}>
+            <MotionBox position="relative" variants={itemVariants}>
+              <MotionIconButton
+                aria-label="Wishlist"
+                icon={<FaHeart />}
+                onClick={() => navigate(userInfo ? "/dashboard" : "/login")}
+                colorScheme="gray"
+                variants={buttonVariants}
+                whileHover="hover"
+                whileTap="tap"
+                size="md"
+              />
+              {wishlist_count > 0 && (
+                <MotionBox
+                  position="absolute"
+                  bg="red.500"
+                  rounded="full"
+                  w="20px"
+                  h="20px"
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  color="white"
+                  fontSize="xs"
+                  top="-5px"
+                  right="-5px"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500 }}
+                >
+                  {wishlist_count}
+                </MotionBox>
+              )}
+            </MotionBox>
 
-            <IconButton
-              aria-label="Cart"
-              icon={<FaCartShopping />}
-              onClick={() => navigate("/card")}
-              position="relative"
-            />
-            {card_product_count > 0 && (
-              <Box
-                position="absolute"
-                bg="red.500"
-                rounded="full"
-                w="20px"
-                h="20px"
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                color="white"
-                fontSize="xs"
-                top={0}
-                right={0}
-              >
-                {card_product_count}
-              </Box>
-            )}
+            <MotionBox position="relative" variants={itemVariants}>
+              <MotionIconButton
+                aria-label="Cart"
+                icon={<FaCartShopping />}
+                onClick={() => navigate("/card")}
+                colorScheme="gray"
+                variants={buttonVariants}
+                whileHover="hover"
+                whileTap="tap"
+                size="md"
+              />
+              {card_product_count > 0 && (
+                <MotionBox
+                  position="absolute"
+                  bg="red.500"
+                  rounded="full"
+                  w="20px"
+                  h="20px"
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  color="white"
+                  fontSize="xs"
+                  top="-5px"
+                  right="-5px"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500 }}
+                >
+                  {card_product_count}
+                </MotionBox>
+              )}
+            </MotionBox>
 
-            <IconButton
+            <MotionIconButton
               aria-label="Open Sidebar"
               icon={<FaBars />}
               display={{ base: "flex", md: "none" }}
-              onClick={toggleSidebar}
+              onClick={onOpen}
+              colorScheme="gray"
+              variants={buttonVariants}
+              whileHover="hover"
+              whileTap="tap"
+              size="md"
             />
-          </Flex>
-        </Flex>
+          </MotionFlex>
+        </MotionFlex>
       </Container>
 
-      {/* ✅ Sidebar Drawer */}
-      <Drawer isOpen={isSidebarOpen} placement="left" onClose={toggleSidebar}>
+      <Drawer isOpen={isOpen} placement="left" onClose={onClose} size="xs">
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
           <DrawerBody p={5}>
-            <Flex direction="column" gap={4}>
+            <MotionFlex
+              direction="column"
+              gap={6}
+              mt={8}
+              initial="hidden"
+              animate="visible"
+              variants={containerVariants}
+            >
               {menuItems.map((item) => (
-                <RouterLink
-                  key={item.label}
-                  to={item.path}
-                  onClick={toggleSidebar}
-                >
-                  <Text
+                <RouterLink key={item.label} to={item.path} onClick={onClose}>
+                  <MotionText
                     fontSize="lg"
                     fontWeight="medium"
-                    _hover={{ color: "blue.500" }}
+                    variants={itemVariants}
+                    whileHover={{
+                      x: 5,
+                      color: "purple.500",
+                      transition: { type: "spring", stiffness: 300 },
+                    }}
                   >
                     {item.label}
-                  </Text>
+                  </MotionText>
                 </RouterLink>
               ))}
+
+              <Divider my={3} />
+
               {userInfo ? (
-                <RouterLink to="/dashboard" onClick={toggleSidebar}>
-                  <Flex align="center" gap={2}>
-                    <FaUser />
-                    <Text>{userInfo.name}</Text>
-                  </Flex>
-                  <Divider />
-                  <Box paddingTop={"30px"}>
-                    <IconButton
-                      aria-label="Logout"
-                      onClick={()=>handleLogout()}
-                      icon={<IoMdLogOut />}
-                      colorScheme="red"
-                      boxShadow="md" // Soft shadow for better UI
-                      size="md" // Standard button size
-                      _hover={{ bg: "red.500", transform: "scale(1.05)" }} // Hover effect
-                      _active={{ bg: "red.600", transform: "scale(0.95)" }} // Press effect
-                    />
-                  </Box>
-                </RouterLink>
+                <MotionFlex direction="column" gap={4} variants={itemVariants}>
+                  <RouterLink to="/dashboard" onClick={onClose}>
+                    <Flex align="center" gap={2}>
+                      <Box p={2} borderRadius="full" bg="purple.100">
+                        <FaUser color="purple" />
+                      </Box>
+                      <Text fontWeight="medium">{userInfo.name}</Text>
+                    </Flex>
+                  </RouterLink>
+
+                  <Button
+                    leftIcon={<IoMdLogOut />}
+                    colorScheme="red"
+                    variant="outline"
+                    onClick={() => {
+                      handleLogout();
+                      onClose();
+                    }}
+                    size="sm"
+                    mt={2}
+                  >
+                    Logout
+                  </Button>
+                </MotionFlex>
               ) : (
-                <RouterLink to="/login" onClick={toggleSidebar}>
-                  <Flex align="center" gap={2}>
-                    <FaLock />
-                    <Text>Login</Text>
-                  </Flex>
+                <RouterLink to="/login" onClick={onClose}>
+                  <MotionFlex
+                    align="center"
+                    gap={2}
+                    variants={itemVariants}
+                    whileHover={{ x: 5 }}
+                  >
+                    <Box p={2} borderRadius="full" bg="blue.100">
+                      <FaLock color="blue" />
+                    </Box>
+                    <Text fontWeight="medium">Login</Text>
+                  </MotionFlex>
                 </RouterLink>
               )}
-            </Flex>
+            </MotionFlex>
           </DrawerBody>
         </DrawerContent>
       </Drawer>
-    </Box>
+    </MotionBox>
   );
 };
 

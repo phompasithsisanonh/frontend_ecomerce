@@ -31,10 +31,10 @@ const ContactInfo = () => (
     />
     <Stack spacing={2} color="gray.600">
       <Text fontSize={{ base: "sm", md: "md" }}>
-        Address: 2504 Ivins Avenue, Egg Harbor Township, NJ 08234
+        ທີ່ຢູ່: ບ້ານຫ້ວຍຫົງ ເມືອງຈັນທະບູລີ ນະຄອນຫຼວງວຽງຈັນ
       </Text>
-      <Text fontSize={{ base: "sm", md: "md" }}>Phone: 4343434344</Text>
-      <Text fontSize={{ base: "sm", md: "md" }}>Email: support@easylearningbd.com</Text>
+      <Text fontSize={{ base: "sm", md: "md" }}>ຕິດຕໍ່ພວກເຮົາ: +856 02096947226</Text>
+      <Text fontSize={{ base: "sm", md: "md" }}>Email: kingsatur16@gmail.com</Text>
     </Stack>
   </Box>
 );
@@ -84,12 +84,7 @@ const NewsletterSubscription = () => (
       Get email updates about our latest and special offers
     </Text>
     <Flex
-      mt={3}
-      align="center"
-      border="1px solid"
-      borderColor="gray.300"
-      bg="white"
-      flexDirection={{ base: "column", md: "row" }}
+    
     >
       <Input
         placeholder="Enter Your Email"
