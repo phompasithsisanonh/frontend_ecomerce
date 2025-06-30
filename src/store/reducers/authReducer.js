@@ -67,6 +67,33 @@ export const get_profile_customer = createAsyncThunk(
     }
   }
 );
+// //logout
+// export const logout_customer = createAsyncThunk(
+//   "auth/logout_customer",
+//   async (_, { rejectWithValue, fulfillWithValue }) => {
+//     try {
+//       const { data } = await api.post(`/logout`, {
+//         withCredentials: true,
+//       });
+//       return fulfillWithValue(data);
+//     } catch (error) {
+//       return rejectWithValue(error.response.data);
+//     }
+//   }
+// );
+// export const authMiddlewares = createAsyncThunk(
+//   "auth/authMiddlewares",
+//   async (_, { rejectWithValue, fulfillWithValue }) => {
+//     try {
+//       const { data } = await api.get(`/authMiddlewares`, {
+//         withCredentials: true,
+//       });
+//       return fulfillWithValue(data);
+//     } catch (error) {
+//       return rejectWithValue(error.response.data);
+//     }
+//   }
+// );
 export const authReducer = createSlice({
   name: "auth",
   initialState: {
@@ -128,7 +155,23 @@ export const authReducer = createSlice({
       .addCase(get_profile_customer.fulfilled, (state, { payload }) => {
         state.loader = false;
         state.get_customer = payload.data;
-      });
+      })
+      // .addCase(logout_customer.pending, (state, { payload }) => {
+      //   state.loader = true;
+      // })
+      // .addCase(logout_customer.rejected, (state, { payload }) => {
+      //   state.errorMessage = payload.message;
+      //   state.loader = false;
+      // })
+      // .addCase(logout_customer.fulfilled, (state, { payload }) => {
+      //   state.successMessage = payload.message;
+      //   state.loader = false;
+      // })
+      // .addCase(authMiddlewares.rejected, (state, { payload }) => {
+      //   state.successMessage = payload.message;
+      //   state.loader = false;
+      // })
+      ;
   },
 });
 export const { messageClear, user_reset } = authReducer.actions;

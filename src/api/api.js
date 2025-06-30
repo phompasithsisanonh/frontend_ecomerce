@@ -1,5 +1,5 @@
 import axios from "axios";
-const local = 'https://backendecommerc2e-production.up.railway.app'
+const local = 'https://backend-ecommerc2e.onrender.com'
 const api = axios.create({
     baseURL : `${local}/api`
 })

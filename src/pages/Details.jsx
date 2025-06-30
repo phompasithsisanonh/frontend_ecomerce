@@ -102,7 +102,7 @@ const Details = () => {
           add_to_card({
             userId: userInfo._id,
             productId: product._id,
-            quantity: 1,
+            quantity: quantity,
           })
         );
       }

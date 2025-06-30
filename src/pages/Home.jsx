@@ -9,8 +9,9 @@ import Footer from "../components/Footer";
 import Search from "./Search";
 import { useDispatch, useSelector } from "react-redux";
 import { get_products } from "../store/reducers/homeReducers";
-const Home = ({controls}) => {
+const Home = ({ controls }) => {
   const dispatch = useDispatch();
+
   const {
     categorys,
     latest_product,
@@ -18,17 +19,17 @@ const Home = ({controls}) => {
     discount_product,
   } = useSelector((state) => state.home);
   useEffect(() => {
-    dispatch(get_products());
-  }, [dispatch]);
+    dispatch(get_products()); // ดึงข้อมูลสินค้าเมื่อ component mount
+  }, [dispatch]); // ใช้ dispatch เป็น dependency
 
   return (
     <div>
-      <Header  />
+      <Header />
       <Search categorys={categorys} />
       <Banner />
       <Categorys controls={controls} categorys={categorys} />
 
-      <FeatureProducts  controls={controls}/>
+      <FeatureProducts controls={controls} />
 
       <Container maxW="85%">
         <Grid
@@ -40,7 +41,7 @@ const Home = ({controls}) => {
           gap={3}
         >
           <Box overflow="hidden">
-            <Products  products={latest_product} title="ສິນຄ້າໃໝ່ລ່າສຸດ" />
+            <Products products={latest_product} title="ສິນຄ້າໃໝ່ລ່າສຸດ" />
           </Box>
 
           <Box overflow="hidden">
